@@ -1,0 +1,75 @@
+package com.velsystems.ecommerce.service.coupon;
+
+import com.velsystems.ecommerce.dto.request.CouponRequestDto;
+import com.velsystems.ecommerce.dto.response.CouponResponseDto;
+import com.velsystems.ecommerce.dto.response.CouponStatsDto;
+import com.velsystems.ecommerce.model.Coupon;
+import com.velsystems.ecommerce.repository.CouponRepository;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class CouponServiceImpl implements CouponService {
+
+    private final CouponRepository couponRepository;
+    private final ModelMapper modelMapper;
+
+    @Override
+    public CouponResponseDto addCoupon(CouponRequestDto dto) {
+        Coupon coupon = modelMapper.map(dto, Coupon.class);
+        coupon = couponRepository.save(coupon);
+        return modelMapper.map(coupon, CouponResponseDto.class);
+    }
+
+    @Override
+    public CouponResponseDto updateCoupon(UUID id, CouponRequestDto dto) {
+        Coupon coupon = couponRepository.findById(id).map(existing -> {
+            modelMapper.map(dto, existing);
+            return couponRepository.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Coupon not found with id " + id));
+        return modelMapper.map(coupon, CouponResponseDto.class);
+    }
+
+    @Override
+    public void deleteCoupon(UUID id) {
+        couponRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<CouponResponseDto> getCouponById(UUID id) {
+        return couponRepository.findById(id)
+                .map(c -> modelMapper.map(c, CouponResponseDto.class));
+    }
+
+    @Override
+    public Optional<CouponResponseDto> getCouponByCode(String code) {
+        return couponRepository.findByCode(code)
+                .map(c -> modelMapper.map(c, CouponResponseDto.class));
+    }
+
+    @Override
+    public Page<CouponResponseDto> getAllCoupons(Pageable pageable) {
+        return couponRepository.findAll(pageable)
+                .map(c -> modelMapper.map(c, CouponResponseDto.class));
+    }
+
+    @Override
+    public CouponStatsDto getCouponStats() {
+        Long active = couponRepository.countActiveCoupons();
+        Long totalUsed = couponRepository.totalUsedCount();
+        Long expired = couponRepository.countExpiredCoupons();
+
+        return CouponStatsDto.builder()
+                .activeCount(active != null ? active : 0L)
+                .totalUsedCount(totalUsed != null ? totalUsed : 0L)
+                .expiredCount(expired != null ? expired : 0L)
+                .build();
+    }
+}
