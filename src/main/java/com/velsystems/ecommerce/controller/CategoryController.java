@@ -1,14 +1,12 @@
 package com.velsystems.ecommerce.controller;
 
 import com.velsystems.ecommerce.dto.request.CategoryRequestDto;
-import com.velsystems.ecommerce.dto.response.CategoryResponseDto;
 import com.velsystems.ecommerce.response.ApiResponse;
 import com.velsystems.ecommerce.service.category.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,5 +37,10 @@ public class CategoryController {
     @GetMapping("/hierarchy")
     public ResponseEntity<ApiResponse> getHierarchy() {
         return ResponseEntity.ok(new ApiResponse("successful",categoryService.getCategoryHierarchy()));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse> getAllCategories() {
+        return ResponseEntity.ok(new ApiResponse("successful", categoryService.getAllCategories()));
     }
 }

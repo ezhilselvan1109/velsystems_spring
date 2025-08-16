@@ -72,6 +72,27 @@ public class CategoryServiceImpl implements CategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<CategoryResponseDto> getAllCategories() {
+        return categoryRepository.findAll()
+                .stream()
+                .map(this::mapToDtoWithoutChildren)
+                .collect(Collectors.toList());
+    }
+
+    private CategoryResponseDto mapToDtoWithoutChildren(Category category) {
+        return CategoryResponseDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .slug(category.getSlug())
+                .description(category.getDescription())
+                .imageUrl(category.getImageUrl())
+                .status(category.getStatus())
+                .sortOrder(category.getSortOrder())
+                .children(List.of())
+                .build();
+    }
+
     private CategoryResponseDto mapToDtoWithChildren(Category category) {
         return CategoryResponseDto.builder()
                 .id(category.getId())
