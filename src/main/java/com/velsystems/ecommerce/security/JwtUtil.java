@@ -14,46 +14,59 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
+    // Make sure the secret is at least 256 bits (32 bytes)
     private static final String SECRET = "ThisIsASecretKeyForJwtGenerationThatIsAtLeast32BytesLong!";
     private static final long JWT_EXPIRATION = 1000 * 60 * 60; // 1 hour
+
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
+    // Generate token safely
     public String generateToken(UserResponse user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().name());
 
+        long nowMillis = System.currentTimeMillis();
+
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(user.getEmail()) // store email as subject
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION))
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date(nowMillis))
+                .setExpiration(new Date(nowMillis + JWT_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    // Validate token against email
     public boolean validateToken(String token, String email) {
-        String tokenEmail = extractUsername(token);
-        return (tokenEmail.equals(email) && !isTokenExpired(token));
-    }
-
-    public boolean validate(String token) {
         try {
-            extractAllClaims(token);
-            return !isTokenExpired(token);
-        } catch (Exception e) {
+            String tokenEmail = extractUsername(token);
+            return tokenEmail.equals(email) && !isTokenExpired(token);
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
+    // Generic validate (true if not expired and signature matches)
+    public boolean validate(String token) {
+        try {
+            extractAllClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    // Extract email (subject)
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Extract role
     public String extractUserRole(String token) {
-        Claims claims = extractAllClaims(token);
-        return claims.get("role", String.class);
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
+    // Extract expiration
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
@@ -62,11 +75,13 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
+    // Extract any claim
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+    // Parse token safely
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
