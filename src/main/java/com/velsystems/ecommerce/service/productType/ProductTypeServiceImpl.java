@@ -5,7 +5,7 @@ import com.velsystems.ecommerce.dto.response.ProductTypeResponseDto;
 import com.velsystems.ecommerce.model.Category;
 import com.velsystems.ecommerce.model.product.ProductType;
 import com.velsystems.ecommerce.repository.CategoryRepository;
-import com.velsystems.ecommerce.repository.ProductTypeRepository;
+import com.velsystems.ecommerce.repository.product.ProductTypeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
