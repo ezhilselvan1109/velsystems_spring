@@ -12,6 +12,10 @@ import com.velsystems.ecommerce.repository.product.ProductTypeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -184,6 +188,18 @@ public class ProductServiceImpl implements ProductService {
             throw new EntityNotFoundException("Product not found");
         }
         productRepository.deleteById(productId);
+    }
+
+    @Override
+    public Page<ProductResponse> getProductsPaginated(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        return productPage.map(this::mapToResponse);
     }
 
     private ProductResponse mapToResponse(Product product) {

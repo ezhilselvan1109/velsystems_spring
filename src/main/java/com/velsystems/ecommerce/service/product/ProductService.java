@@ -3,6 +3,7 @@ package com.velsystems.ecommerce.service.product;
 import com.velsystems.ecommerce.dto.request.ProductCreateRequest;
 import com.velsystems.ecommerce.dto.request.ProductUpdateRequest;
 import com.velsystems.ecommerce.dto.response.ProductResponse;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,4 +14,5 @@ public interface ProductService {
     List<ProductResponse> getAllProducts();
     ProductResponse updateProduct(UUID productId, ProductUpdateRequest request);
     void deleteProduct(UUID productId);
+    Page<ProductResponse> getProductsPaginated(int page, int size, String sortBy, String sortDir);
 }

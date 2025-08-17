@@ -50,4 +50,17 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok(new ApiResponse("Product deleted successfully", null));
     }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<ApiResponse> getProductsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        var productsPage = productService.getProductsPaginated(page, size, sortBy, sortDir);
+        return ResponseEntity.ok(
+                new ApiResponse("Products retrieved successfully", productsPage)
+        );
+    }
 }
