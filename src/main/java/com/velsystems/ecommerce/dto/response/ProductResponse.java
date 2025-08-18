@@ -14,11 +14,12 @@ public class ProductResponse {
     private UUID id;
     private String name;
     private String slug;
-    private BrandResponseDto brand;
-    private ProductTypeResponse productType;
-    private Double price;
-    private Integer stock;
     private String description;
-    private List<ProductImageResponseDto> image;
-    private List<ProductSpecificationGroupResponse> specificationGroup;
+
+    private String brandName;
+    private String categoryName;
+
+    private List<ProductImageResponse> images;
+    private List<ProductVariantResponse> variants;
+    private List<ProductSpecificationGroupResponse> specificationGroups;
 }

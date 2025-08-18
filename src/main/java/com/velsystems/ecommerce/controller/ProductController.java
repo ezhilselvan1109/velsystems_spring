@@ -1,13 +1,13 @@
 package com.velsystems.ecommerce.controller;
 
-import com.velsystems.ecommerce.dto.request.ProductCreateRequest;
-import com.velsystems.ecommerce.dto.request.ProductUpdateRequest;
+import com.velsystems.ecommerce.dto.request.ProductRequest;
 import com.velsystems.ecommerce.dto.response.ProductResponse;
 import com.velsystems.ecommerce.response.ApiResponse;
 import com.velsystems.ecommerce.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -21,28 +21,16 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createProduct(@Valid @RequestBody ProductCreateRequest request) {
-        ProductResponse response = productService.createProduct(request);
-        return ResponseEntity.ok(new ApiResponse("Product created successfully", response));
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getProduct(@PathVariable UUID id) {
-        ProductResponse response = productService.getProduct(id);
-        return ResponseEntity.ok(new ApiResponse("Product retrieved successfully", response));
-    }
-
-    @GetMapping
-    public ResponseEntity<ApiResponse> getAllProducts() {
-        List<ProductResponse> products = productService.getAllProducts();
-        return ResponseEntity.ok(new ApiResponse("Products retrieved successfully", products));
+    public ResponseEntity<ApiResponse> createProduct(@Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.createProduct(request);
+        return ResponseEntity.ok(new ApiResponse("Product created successfully", product));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateProduct(@PathVariable UUID id,
-                                                     @Valid @RequestBody ProductUpdateRequest request) {
-        ProductResponse response = productService.updateProduct(id, request);
-        return ResponseEntity.ok(new ApiResponse("Product updated successfully", response));
+                                                     @Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.updateProduct(id, request);
+        return ResponseEntity.ok(new ApiResponse("Product updated successfully", product));
     }
 
     @DeleteMapping("/{id}")
@@ -51,16 +39,21 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse("Product deleted successfully", null));
     }
 
-    @GetMapping("/paginated")
-    public ResponseEntity<ApiResponse> getProductsPaginated(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getProductById(@PathVariable UUID id) {
+        ProductResponse product = productService.getProductById(id);
+        return ResponseEntity.ok(new ApiResponse("Product fetched successfully", product));
+    }
 
-        var productsPage = productService.getProductsPaginated(page, size, sortBy, sortDir);
-        return ResponseEntity.ok(
-                new ApiResponse("Products retrieved successfully", productsPage)
-        );
+    @GetMapping
+    public ResponseEntity<ApiResponse> getAllProducts(@RequestParam(required = false) Integer page,
+                                                      @RequestParam(required = false) Integer size) {
+        if (page != null && size != null) {
+            Page<ProductResponse> products = productService.getAllProductsPaged(page, size);
+            return ResponseEntity.ok(new ApiResponse("Paged products fetched successfully", products));
+        } else {
+            List<ProductResponse> products = productService.getAllProducts();
+            return ResponseEntity.ok(new ApiResponse("All products fetched successfully", products));
+        }
     }
 }

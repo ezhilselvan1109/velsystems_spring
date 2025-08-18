@@ -6,17 +6,19 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "product_specifications")
+@Table(name = "product_options")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class ProductSpecification {
+public class ProductOption {
     @Id
     @GeneratedValue
     private UUID id;
 
-    private String attributeName;   // Example: "Size"
-    private String attributeValue;  // Example: "6.5 inch"
+    @Column(nullable = false)
+    private String name; // Example: Size, Color
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private ProductSpecificationGroup group;
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 }
+
+

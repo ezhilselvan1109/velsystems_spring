@@ -9,17 +9,13 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "product_specification_groups")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ProductSpecificationGroup {
     @Id
     @GeneratedValue
     private UUID id;
 
-    private String name;
+    private String name; // Example: "Display"
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -28,3 +24,4 @@ public class ProductSpecificationGroup {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductSpecification> specifications = new HashSet<>();
 }
+

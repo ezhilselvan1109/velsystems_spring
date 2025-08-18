@@ -11,6 +11,6 @@ import java.util.UUID;
 @Builder
 public class ProductSpecificationResponse {
     private UUID id;
-    private String attributeName;
-    private String attributeValue;
+    private String attributeName;   // ✅ service maps spec.getAttributeName()
+    private String attributeValue;  // ✅ service maps spec.getAttributeValue()
 }

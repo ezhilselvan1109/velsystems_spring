@@ -1,6 +1,5 @@
 package com.velsystems.ecommerce.dto.request;
 
-import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Getter
@@ -9,7 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ProductSpecificationRequest {
-    private String attributeName;
-
-    private String attributeValue;
+    private String attributeName;   // ✅ matches service
+    private String attributeValue;  // ✅ matches service
 }

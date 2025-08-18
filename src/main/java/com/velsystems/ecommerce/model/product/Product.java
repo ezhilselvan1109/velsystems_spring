@@ -1,6 +1,8 @@
 package com.velsystems.ecommerce.model.product;
 
+import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.model.Brand;
+import com.velsystems.ecommerce.model.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,11 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "products")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Product {
     @Id
     @GeneratedValue
@@ -32,15 +30,19 @@ public class Product {
     private Brand brand;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_type_id")
-    private ProductType productType;
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    private Double price;
-    private Integer stock;
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.ACTIVE; // 👈 Draft / Active / Inactive etc.
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProductVariant> variants = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductImage> images = new HashSet<>();

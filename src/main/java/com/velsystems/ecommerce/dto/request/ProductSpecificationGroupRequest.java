@@ -1,6 +1,5 @@
 package com.velsystems.ecommerce.dto.request;
 
-import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.util.List;
@@ -11,8 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProductSpecificationGroupRequest {
-
     private String name;
-
     private List<ProductSpecificationRequest> specifications;
 }
