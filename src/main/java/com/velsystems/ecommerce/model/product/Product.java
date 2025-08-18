@@ -3,6 +3,7 @@ package com.velsystems.ecommerce.model.product;
 import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.model.Brand;
 import com.velsystems.ecommerce.model.Category;
+import com.velsystems.ecommerce.model.Review;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -50,6 +51,8 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductSpecificationGroup> specificationGroups = new HashSet<>();
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Review> reviews = new HashSet<>();
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
