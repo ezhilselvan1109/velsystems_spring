@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.service.impl;
 
-import com.velsystems.ecommerce.dto.request.BrandRequestDto;
+import com.velsystems.ecommerce.dto.request.BrandRequest;
 import com.velsystems.ecommerce.dto.response.BrandResponseDto;
 import com.velsystems.ecommerce.model.Brand;
 import com.velsystems.ecommerce.repository.BrandRepository;
@@ -20,14 +20,14 @@ public class BrandServiceImpl implements BrandService {
     private final ModelMapper modelMapper;
 
     @Override
-    public BrandResponseDto createBrand(BrandRequestDto dto) {
+    public BrandResponseDto createBrand(BrandRequest dto) {
         Brand brand = modelMapper.map(dto, Brand.class);
         Brand saved = brandRepository.save(brand);
         return modelMapper.map(saved, BrandResponseDto.class);
     }
 
     @Override
-    public BrandResponseDto updateBrand(UUID id, BrandRequestDto dto) {
+    public BrandResponseDto updateBrand(UUID id, BrandRequest dto) {
         Brand brand = brandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Brand not found"));
 

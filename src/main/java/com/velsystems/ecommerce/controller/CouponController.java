@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.controller;
 
-import com.velsystems.ecommerce.dto.request.CouponRequestDto;
+import com.velsystems.ecommerce.dto.request.CouponRequest;
 import com.velsystems.ecommerce.dto.response.CouponResponseDto;
 import com.velsystems.ecommerce.dto.response.CouponStatsDto;
 import com.velsystems.ecommerce.response.ApiResponse;
@@ -23,14 +23,14 @@ public class CouponController {
     private final CouponService couponService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> addCoupon(@Valid @RequestBody CouponRequestDto dto) {
+    public ResponseEntity<ApiResponse> addCoupon(@Valid @RequestBody CouponRequest dto) {
         CouponResponseDto coupon = couponService.addCoupon(dto);
         return ResponseEntity.ok(new ApiResponse("success", coupon));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateCoupon(@PathVariable UUID id,
-                                                    @Valid @RequestBody CouponRequestDto dto) {
+                                                    @Valid @RequestBody CouponRequest dto) {
         CouponResponseDto coupon = couponService.updateCoupon(id, dto);
         return ResponseEntity.ok(new ApiResponse("success", coupon));
     }

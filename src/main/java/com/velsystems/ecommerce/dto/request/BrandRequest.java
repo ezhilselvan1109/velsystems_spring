@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BrandRequestDto {
+public class BrandRequest {
     private String name;
     private String description;
     private String logoUrl;

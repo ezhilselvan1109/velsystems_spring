@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.service.category;
 
-import com.velsystems.ecommerce.dto.request.CategoryRequestDto;
+import com.velsystems.ecommerce.dto.request.CategoryRequest;
 import com.velsystems.ecommerce.dto.response.CategoryResponseDto;
 import com.velsystems.ecommerce.enums.CategoryStatus;
 import com.velsystems.ecommerce.model.Category;
@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public CategoryResponseDto createCategory(CategoryRequestDto dto) {
+    public CategoryResponseDto createCategory(CategoryRequest dto) {
         Category category = Category.builder()
                 .name(dto.getName())
                 .slug(dto.getSlug())
@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponseDto updateCategory(UUID id, CategoryRequestDto dto) {
+    public CategoryResponseDto updateCategory(UUID id, CategoryRequest dto) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 

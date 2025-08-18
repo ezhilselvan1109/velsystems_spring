@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.service.product;
 
-import com.velsystems.ecommerce.dto.request.ProductRequest;
+import com.velsystems.ecommerce.dto.request.product.ProductRequest;
 import com.velsystems.ecommerce.dto.response.ProductResponse;
 import org.springframework.data.domain.Page;
 

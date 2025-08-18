@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.service.coupon;
 
-import com.velsystems.ecommerce.dto.request.CouponRequestDto;
+import com.velsystems.ecommerce.dto.request.CouponRequest;
 import com.velsystems.ecommerce.dto.response.CouponResponseDto;
 import com.velsystems.ecommerce.dto.response.CouponStatsDto;
 import com.velsystems.ecommerce.model.Coupon;
@@ -22,14 +22,14 @@ public class CouponServiceImpl implements CouponService {
     private final ModelMapper modelMapper;
 
     @Override
-    public CouponResponseDto addCoupon(CouponRequestDto dto) {
+    public CouponResponseDto addCoupon(CouponRequest dto) {
         Coupon coupon = modelMapper.map(dto, Coupon.class);
         coupon = couponRepository.save(coupon);
         return modelMapper.map(coupon, CouponResponseDto.class);
     }
 
     @Override
-    public CouponResponseDto updateCoupon(UUID id, CouponRequestDto dto) {
+    public CouponResponseDto updateCoupon(UUID id, CouponRequest dto) {
         Coupon coupon = couponRepository.findById(id).map(existing -> {
             modelMapper.map(dto, existing);
             return couponRepository.save(existing);

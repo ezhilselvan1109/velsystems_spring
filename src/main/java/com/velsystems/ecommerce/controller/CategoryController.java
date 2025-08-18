@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.controller;
 
-import com.velsystems.ecommerce.dto.request.CategoryRequestDto;
+import com.velsystems.ecommerce.dto.request.CategoryRequest;
 import com.velsystems.ecommerce.response.ApiResponse;
 import com.velsystems.ecommerce.service.category.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +17,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createCategory(@RequestBody CategoryRequestDto dto) {
+    public ResponseEntity<ApiResponse> createCategory(@RequestBody CategoryRequest dto) {
         return ResponseEntity.ok(new ApiResponse("successful",categoryService.createCategory(dto)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateCategory(
             @PathVariable UUID id,
-            @RequestBody CategoryRequestDto dto) {
+            @RequestBody CategoryRequest dto) {
         return ResponseEntity.ok(new ApiResponse("successful",categoryService.updateCategory(id, dto)));
     }
 

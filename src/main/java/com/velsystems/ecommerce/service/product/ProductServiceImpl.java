@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.service.product;
 
-import com.velsystems.ecommerce.dto.request.*;
+import com.velsystems.ecommerce.dto.request.product.ProductRequest;
 import com.velsystems.ecommerce.dto.response.*;
 import com.velsystems.ecommerce.model.*;
 import com.velsystems.ecommerce.model.product.*;

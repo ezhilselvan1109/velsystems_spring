@@ -10,7 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryRequestDto {
+public class CategoryRequest {
     private String name;
     private String slug;
     private String description;

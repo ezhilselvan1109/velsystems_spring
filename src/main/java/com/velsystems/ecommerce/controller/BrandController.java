@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.controller;
 
-import com.velsystems.ecommerce.dto.request.BrandRequestDto;
+import com.velsystems.ecommerce.dto.request.BrandRequest;
 import com.velsystems.ecommerce.response.ApiResponse;
 import com.velsystems.ecommerce.service.BrandService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class BrandController {
     private final BrandService brandService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> create(@RequestBody BrandRequestDto dto) {
+    public ResponseEntity<ApiResponse> create(@RequestBody BrandRequest dto) {
         return ResponseEntity.ok(new ApiResponse(
                 "Brand created successfully",
                 brandService.createBrand(dto)
@@ -25,7 +25,7 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> update(@PathVariable UUID id, @RequestBody BrandRequestDto dto) {
+    public ResponseEntity<ApiResponse> update(@PathVariable UUID id, @RequestBody BrandRequest dto) {
         return ResponseEntity.ok(new ApiResponse(
                 "Brand updated successfully",
                 brandService.updateBrand(id, dto)

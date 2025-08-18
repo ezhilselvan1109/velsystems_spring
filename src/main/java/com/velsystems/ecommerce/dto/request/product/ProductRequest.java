@@ -1,5 +1,7 @@
-package com.velsystems.ecommerce.dto.request;
+package com.velsystems.ecommerce.dto.request.product;
 
+import com.velsystems.ecommerce.dto.request.product.specification.ProductSpecificationGroupRequest;
+import com.velsystems.ecommerce.dto.request.product.variant.ProductVariantRequest;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

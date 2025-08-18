@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CouponRequestDto {
+public class CouponRequest {
 
     @NotBlank(message = "Coupon code is required")
     @Size(max = 64, message = "Coupon code must be at most 64 characters")
