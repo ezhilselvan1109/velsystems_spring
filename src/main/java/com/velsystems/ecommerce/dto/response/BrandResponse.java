@@ -1,8 +1,8 @@
 package com.velsystems.ecommerce.dto.response;
 
+import com.velsystems.ecommerce.enums.Status;
 import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -10,8 +10,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductSpecificationGroupResponse {
+public class BrandResponse {
     private UUID id;
     private String name;
-    private List<ProductSpecificationResponse> specifications;
+    private String description;
+    private String logoUrl;
+    private Status status;
+    private Integer sortOrder;
 }

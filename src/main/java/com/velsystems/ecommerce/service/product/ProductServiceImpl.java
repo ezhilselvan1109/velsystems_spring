@@ -1,7 +1,12 @@
 package com.velsystems.ecommerce.service.product;
 
 import com.velsystems.ecommerce.dto.request.product.ProductRequest;
-import com.velsystems.ecommerce.dto.response.*;
+import com.velsystems.ecommerce.dto.response.product.ProductImageResponse;
+import com.velsystems.ecommerce.dto.response.product.ProductResponse;
+import com.velsystems.ecommerce.dto.response.product.specification.ProductSpecificationGroupResponse;
+import com.velsystems.ecommerce.dto.response.product.specification.ProductSpecificationResponse;
+import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantOptionResponse;
+import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantResponse;
 import com.velsystems.ecommerce.model.*;
 import com.velsystems.ecommerce.model.product.*;
 import com.velsystems.ecommerce.repository.*;

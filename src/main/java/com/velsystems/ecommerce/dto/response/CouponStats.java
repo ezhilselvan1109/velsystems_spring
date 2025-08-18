@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CouponStatsDto {
+public class CouponStats {
     private Long activeCount;
     private Long totalUsedCount;
     private Long expiredCount;

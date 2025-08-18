@@ -1,4 +1,4 @@
-package com.velsystems.ecommerce.dto.response;
+package com.velsystems.ecommerce.dto.response.product;
 
 import lombok.*;
 

@@ -1,5 +1,6 @@
-package com.velsystems.ecommerce.dto.response;
+package com.velsystems.ecommerce.dto.response.product.variant;
 
+import com.velsystems.ecommerce.dto.response.product.ProductImageResponse;
 import lombok.*;
 
 import java.math.BigDecimal;

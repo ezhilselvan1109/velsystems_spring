@@ -1,7 +1,7 @@
 package com.velsystems.ecommerce.service.category;
 
 import com.velsystems.ecommerce.dto.request.CategoryRequest;
-import com.velsystems.ecommerce.dto.response.CategoryResponseDto;
+import com.velsystems.ecommerce.dto.response.CategoryResponse;
 import com.velsystems.ecommerce.enums.CategoryStatus;
 import com.velsystems.ecommerce.model.Category;
 import com.velsystems.ecommerce.repository.CategoryRepository;
@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public CategoryResponseDto createCategory(CategoryRequest dto) {
+    public CategoryResponse createCategory(CategoryRequest dto) {
         Category category = Category.builder()
                 .name(dto.getName())
                 .slug(dto.getSlug())
@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponseDto updateCategory(UUID id, CategoryRequest dto) {
+    public CategoryResponse updateCategory(UUID id, CategoryRequest dto) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
@@ -65,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponseDto> getCategoryHierarchy() {
+    public List<CategoryResponse> getCategoryHierarchy() {
         return categoryRepository.findByParentIsNullOrderBySortOrderAscNameAsc()
                 .stream()
                 .map(this::mapToDtoWithChildren)
@@ -73,15 +73,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<CategoryResponseDto> getAllCategories() {
+    public List<CategoryResponse> getAllCategories() {
         return categoryRepository.findAll()
                 .stream()
                 .map(this::mapToDtoWithoutChildren)
                 .collect(Collectors.toList());
     }
 
-    private CategoryResponseDto mapToDtoWithoutChildren(Category category) {
-        return CategoryResponseDto.builder()
+    private CategoryResponse mapToDtoWithoutChildren(Category category) {
+        return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .slug(category.getSlug())
@@ -93,8 +93,8 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
     }
 
-    private CategoryResponseDto mapToDtoWithChildren(Category category) {
-        return CategoryResponseDto.builder()
+    private CategoryResponse mapToDtoWithChildren(Category category) {
+        return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .slug(category.getSlug())

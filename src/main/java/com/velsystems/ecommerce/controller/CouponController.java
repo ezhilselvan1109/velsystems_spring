@@ -1,8 +1,8 @@
 package com.velsystems.ecommerce.controller;
 
 import com.velsystems.ecommerce.dto.request.CouponRequest;
-import com.velsystems.ecommerce.dto.response.CouponResponseDto;
-import com.velsystems.ecommerce.dto.response.CouponStatsDto;
+import com.velsystems.ecommerce.dto.response.CouponResponse;
+import com.velsystems.ecommerce.dto.response.CouponStats;
 import com.velsystems.ecommerce.response.ApiResponse;
 import com.velsystems.ecommerce.service.coupon.CouponService;
 import jakarta.validation.Valid;
@@ -24,14 +24,14 @@ public class CouponController {
 
     @PostMapping
     public ResponseEntity<ApiResponse> addCoupon(@Valid @RequestBody CouponRequest dto) {
-        CouponResponseDto coupon = couponService.addCoupon(dto);
+        CouponResponse coupon = couponService.addCoupon(dto);
         return ResponseEntity.ok(new ApiResponse("success", coupon));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateCoupon(@PathVariable UUID id,
                                                     @Valid @RequestBody CouponRequest dto) {
-        CouponResponseDto coupon = couponService.updateCoupon(id, dto);
+        CouponResponse coupon = couponService.updateCoupon(id, dto);
         return ResponseEntity.ok(new ApiResponse("success", coupon));
     }
 
@@ -44,14 +44,14 @@ public class CouponController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getCouponById(@PathVariable UUID id) {
-        Optional<CouponResponseDto> coupon = couponService.getCouponById(id);
+        Optional<CouponResponse> coupon = couponService.getCouponById(id);
         return coupon.map(c -> ResponseEntity.ok(new ApiResponse("success", c)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/code/{code}")
     public ResponseEntity<ApiResponse> getCouponByCode(@PathVariable String code) {
-        Optional<CouponResponseDto> coupon = couponService.getCouponByCode(code);
+        Optional<CouponResponse> coupon = couponService.getCouponByCode(code);
         return coupon.map(c -> ResponseEntity.ok(new ApiResponse("success", c)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -61,13 +61,13 @@ public class CouponController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Page<CouponResponseDto> coupons = couponService.getAllCoupons(PageRequest.of(page, size));
+        Page<CouponResponse> coupons = couponService.getAllCoupons(PageRequest.of(page, size));
         return ResponseEntity.ok(new ApiResponse("success", coupons));
     }
 
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse> getCouponStats() {
-        CouponStatsDto stats = couponService.getCouponStats();
+        CouponStats stats = couponService.getCouponStats();
         return ResponseEntity.ok(new ApiResponse("success", stats));
     }
 }

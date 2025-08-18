@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CouponResponseDto {
+public class CouponResponse {
     private UUID id;
     private String code;
     private String description;
