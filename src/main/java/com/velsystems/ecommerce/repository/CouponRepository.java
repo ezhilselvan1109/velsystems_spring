@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface CouponRepository extends JpaRepository<Coupon, UUID> {
     Optional<Coupon> findByCode(String code);
+    Optional<Coupon> findByIdAndActiveTrue(UUID id);
     Page<Coupon> findAll(Pageable pageable);
     @Query("SELECT COUNT(c) FROM Coupon c WHERE c.active = true AND (c.endsAt IS NULL OR c.endsAt > CURRENT_TIMESTAMP)")
     Long countActiveCoupons();
