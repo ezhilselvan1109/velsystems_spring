@@ -37,4 +37,21 @@ public class ProductControllers {
         ProductResponse updatedProduct = productService.createVariant(productId, request);
         return ResponseEntity.ok(updatedProduct);
     }
+
+    // ✅ Delete product
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ✅ Delete variant
+    @DeleteMapping("/variants/{variantId}")
+    public ResponseEntity<Void> deleteVariant(@PathVariable UUID variantId) {
+        productService.deleteVariant(variantId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 }

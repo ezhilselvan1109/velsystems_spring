@@ -7,6 +7,7 @@ import com.velsystems.ecommerce.model.Brand;
 import com.velsystems.ecommerce.model.Category;
 import com.velsystems.ecommerce.model.product.*;
 import com.velsystems.ecommerce.repository.product.ProductRepository;
+import com.velsystems.ecommerce.repository.product.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductVariantRepository variantRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -140,5 +142,22 @@ public class ProductServiceImpl implements ProductService {
         Product savedProduct = productRepository.save(product);
 
         return modelMapper.map(savedProduct, ProductResponse.class);
+    }
+
+    @Override
+    public void deleteProduct(UUID productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new RuntimeException("Product not found");
+        }
+        productRepository.deleteById(productId);
+    }
+
+    // ✅ Delete variant
+    @Override
+    public void deleteVariant(UUID variantId) {
+        if (!variantRepository.existsById(variantId)) {
+            throw new RuntimeException("Variant not found");
+        }
+        variantRepository.deleteById(variantId);
     }
 }

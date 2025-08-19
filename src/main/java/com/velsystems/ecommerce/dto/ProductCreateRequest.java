@@ -1,6 +1,5 @@
 package com.velsystems.ecommerce.dto;
 
-import com.velsystems.ecommerce.dto.request.product.ProductImageRequest;
 import com.velsystems.ecommerce.dto.request.product.specification.ProductSpecificationGroupRequest;
 import lombok.*;
 

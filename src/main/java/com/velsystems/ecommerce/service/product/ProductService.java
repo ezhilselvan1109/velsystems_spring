@@ -10,5 +10,7 @@ public interface ProductService {
     ProductResponse createProduct(ProductCreateRequest request);
     ProductResponse getProductById(UUID productId);
     ProductResponse createVariant(UUID productId, ProductVariantCreateRequest request);
+    void deleteProduct(UUID productId);
+    void deleteVariant(UUID variantId);
 }
 
