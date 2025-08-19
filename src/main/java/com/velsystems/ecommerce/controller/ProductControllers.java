@@ -6,6 +6,12 @@ import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
 import com.velsystems.ecommerce.dto.ProductVariantResponse;
 import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.service.product.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -17,56 +23,80 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
+@Tag(name = "Products", description = "Product & Product Variant Management APIs")
 public class ProductControllers {
 
     private final ProductService productService;
 
+    @Operation(
+            summary = "Create a new Product",
+            description = "Creates a new product with brand, category and details."
+    )
+    @ApiResponse(responseCode = "200", description = "Product created successfully",
+            content = @Content(schema = @Schema(implementation = ProductResponse.class)))
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductCreateRequest request) {
-        ProductResponse createdProduct = productService.createProduct(request);
-        return ResponseEntity.ok(createdProduct);
+        return ResponseEntity.ok(productService.createProduct(request));
     }
 
-    // Fetch product by ID
+    @Operation(
+            summary = "Get Product by ID",
+            description = "Fetch a single product using its unique identifier."
+    )
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProduct(@PathVariable UUID id) {
-        ProductResponse product = productService.getProductById(id);
-        return ResponseEntity.ok(product);
+        return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    // Create a variant for existing product
+    @Operation(
+            summary = "Create Variant for a Product",
+            description = "Adds a new variant to an existing product."
+    )
     @PostMapping("/{productId}/variants")
-    public ResponseEntity<ProductResponse> createVariant(@PathVariable UUID productId,
-                                                         @RequestBody ProductVariantCreateRequest request) {
-        ProductResponse updatedProduct = productService.createVariant(productId, request);
-        return ResponseEntity.ok(updatedProduct);
+    public ResponseEntity<ProductResponse> createVariant(
+            @PathVariable UUID productId,
+            @RequestBody ProductVariantCreateRequest request) {
+        return ResponseEntity.ok(productService.createVariant(productId, request));
     }
 
-    // ✅ Delete product
+    @Operation(
+            summary = "Delete Product",
+            description = "Deletes a product permanently using its ID."
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ Delete variant
+    @Operation(
+            summary = "Delete Variant",
+            description = "Deletes a specific product variant by its ID."
+    )
     @DeleteMapping("/variants/{variantId}")
     public ResponseEntity<Void> deleteVariant(@PathVariable UUID variantId) {
         productService.deleteVariant(variantId);
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ Get all products with sorting
+    @Operation(
+            summary = "Get All Products (Paginated + Sorted)",
+            description = "Returns all products with pagination and sorting support."
+    )
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getAllProducts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
+            @Parameter(description = "Page number (default: 0)") @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size (default: 10)") @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "Sort by field (default: createdAt)") @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "Sort direction: asc or desc (default: desc)") @RequestParam(defaultValue = "desc") String direction
+    ) {
         return ResponseEntity.ok(productService.getAllProducts(page, size, sortBy, direction));
     }
 
-    // ✅ Filter products with sorting
+    @Operation(
+            summary = "Filter Products",
+            description = "Filter products by brand, category, keyword, and status with pagination & sorting."
+    )
     @GetMapping("/filter")
     public ResponseEntity<Page<ProductResponse>> filterProducts(
             @RequestParam(required = false) UUID brandId,
@@ -76,17 +106,26 @@ public class ProductControllers {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
         return ResponseEntity.ok(productService.filterProducts(brandId, categoryId, keyword, status, page, size, sortBy, direction));
     }
+
+    @Operation(
+            summary = "Get All Products (Non-paginated)",
+            description = "Fetch all products without pagination (use with caution)."
+    )
     @GetMapping("/all")
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
-    // ✅ Get Variants of a Product without Pagination
+
+    @Operation(
+            summary = "Get Variants of a Product",
+            description = "Returns all variants of a given product."
+    )
     @GetMapping("/{productId}/variants")
     public ResponseEntity<List<ProductVariantResponse>> getVariants(@PathVariable UUID productId) {
         return ResponseEntity.ok(productService.getVariantsByProduct(productId));
     }
-
 }
