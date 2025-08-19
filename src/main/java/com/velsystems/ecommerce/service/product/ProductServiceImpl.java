@@ -3,6 +3,7 @@ package com.velsystems.ecommerce.service.product;
 import com.velsystems.ecommerce.dto.ProductCreateRequest;
 import com.velsystems.ecommerce.dto.ProductResponse;
 import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
+import com.velsystems.ecommerce.dto.ProductVariantResponse;
 import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.model.Brand;
 import com.velsystems.ecommerce.model.Category;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -197,6 +199,21 @@ public class ProductServiceImpl implements ProductService {
             return productRepository.findAll(pageable)
                     .map(p -> modelMapper.map(p, ProductResponse.class));
         }
+    }
+
+    @Override
+    public List<ProductVariantResponse> getVariantsByProduct(UUID productId) {
+        return variantRepository.findByProductId(productId, Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(v -> modelMapper.map(v, ProductVariantResponse.class))
+                .toList();
+    }
+    @Override
+    public List<ProductResponse> getAllProducts() {
+        return productRepository.findAll().stream()
+                .map(p -> modelMapper.map(p, ProductResponse.class))
+                .toList();
     }
 
 }

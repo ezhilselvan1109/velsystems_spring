@@ -3,6 +3,7 @@ package com.velsystems.ecommerce.controller;
 import com.velsystems.ecommerce.dto.ProductCreateRequest;
 import com.velsystems.ecommerce.dto.ProductResponse;
 import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
+import com.velsystems.ecommerce.dto.ProductVariantResponse;
 import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -77,6 +79,14 @@ public class ProductControllers {
             @RequestParam(defaultValue = "desc") String direction) {
         return ResponseEntity.ok(productService.filterProducts(brandId, categoryId, keyword, status, page, size, sortBy, direction));
     }
-
+    @GetMapping("/all")
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
+    }
+    // ✅ Get Variants of a Product without Pagination
+    @GetMapping("/{productId}/variants")
+    public ResponseEntity<List<ProductVariantResponse>> getVariants(@PathVariable UUID productId) {
+        return ResponseEntity.ok(productService.getVariantsByProduct(productId));
+    }
 
 }
