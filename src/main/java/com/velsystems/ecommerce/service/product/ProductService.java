@@ -1,6 +1,8 @@
 package com.velsystems.ecommerce.service.product;
 
 import com.velsystems.ecommerce.dto.request.product.create.ProductCreateRequest;
+import com.velsystems.ecommerce.dto.request.product.update.ProductUpdateRequest;
+import com.velsystems.ecommerce.dto.request.product.update.variant.ProductVariantUpdateRequest;
 import com.velsystems.ecommerce.dto.response.product.ProductResponse;
 import com.velsystems.ecommerce.dto.request.product.create.variant.ProductVariantCreateRequest;
 import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantResponse;
@@ -21,5 +23,7 @@ public interface ProductService {
                                          int page, int size, String sortBy, String direction);
     List<ProductVariantResponse> getVariantsByProduct(UUID productId);
     List<ProductResponse> getAllProducts();
+    ProductVariantResponse updateVariant(UUID variantId, ProductVariantUpdateRequest request);
+    ProductResponse updateProduct(UUID productId, ProductUpdateRequest request);
 }
 

@@ -1,0 +1,17 @@
+package com.velsystems.ecommerce.dto.request.product.update.specification;
+
+import lombok.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ProductSpecificationGroupRequest {
+    private UUID id;
+    private String name;
+    private List<ProductSpecificationRequest> specifications;
+}

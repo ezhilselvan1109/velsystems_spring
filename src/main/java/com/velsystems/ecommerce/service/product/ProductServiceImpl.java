@@ -1,6 +1,8 @@
 package com.velsystems.ecommerce.service.product;
 
 import com.velsystems.ecommerce.dto.request.product.create.ProductCreateRequest;
+import com.velsystems.ecommerce.dto.request.product.update.ProductUpdateRequest;
+import com.velsystems.ecommerce.dto.request.product.update.variant.ProductVariantUpdateRequest;
 import com.velsystems.ecommerce.dto.response.product.ProductResponse;
 import com.velsystems.ecommerce.dto.request.product.create.variant.ProductVariantCreateRequest;
 import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantResponse;
@@ -21,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -214,5 +218,160 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findAll().stream()
                 .map(p -> modelMapper.map(p, ProductResponse.class))
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse updateProduct(UUID productId, ProductUpdateRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        // basic fields
+        product.setName(request.getName());
+        product.setSlug(request.getSlug());
+        product.setDescription(request.getDescription());
+        product.setBrand(Brand.builder().id(request.getBrandId()).build());
+        product.setCategory(Category.builder().id(request.getCategoryId()).build());
+
+        // ✅ handle options (create/update/delete)
+        Map<UUID, ProductOption> existingOptions = product.getOptions()
+                .stream().collect(Collectors.toMap(ProductOption::getId, o -> o));
+
+        if (request.getOptions() != null) {
+            List<ProductOption> updatedOptions = request.getOptions().stream().map(optReq -> {
+                ProductOption option = (optReq.getId() != null && existingOptions.containsKey(optReq.getId()))
+                        ? existingOptions.get(optReq.getId())
+                        : new ProductOption();
+
+                option.setName(optReq.getName());
+                option.setProduct(product);
+
+                // values (same logic create/update/delete)
+                Map<UUID, ProductOptionValue> existingValues = option.getValues()
+                        .stream().collect(Collectors.toMap(ProductOptionValue::getId, v -> v));
+
+                if (optReq.getValues() != null) {
+                    List<ProductOptionValue> updatedValues = optReq.getValues().stream().map(valReq -> {
+                        ProductOptionValue value = (valReq.getId() != null && existingValues.containsKey(valReq.getId()))
+                                ? existingValues.get(valReq.getId())
+                                : new ProductOptionValue();
+                        value.setValue(valReq.getValue());
+                        value.setOption(option);
+                        return value;
+                    }).toList();
+                    option.setValues(new HashSet<>(updatedValues));
+                }
+                return option;
+            }).toList();
+
+            product.setOptions(new HashSet<>(updatedOptions));
+        }
+
+        // ✅ handle specification groups
+        Map<UUID, ProductSpecificationGroup> existingGroups = product.getSpecificationGroups()
+                .stream().collect(Collectors.toMap(ProductSpecificationGroup::getId, g -> g));
+
+        if (request.getSpecificationGroups() != null) {
+            List<ProductSpecificationGroup> updatedGroups = request.getSpecificationGroups().stream().map(groupReq -> {
+                ProductSpecificationGroup group = (groupReq.getId() != null && existingGroups.containsKey(groupReq.getId()))
+                        ? existingGroups.get(groupReq.getId())
+                        : new ProductSpecificationGroup();
+
+                group.setName(groupReq.getName());
+                group.setProduct(product);
+
+                Map<UUID, ProductSpecification> existingSpecs = group.getSpecifications()
+                        .stream().collect(Collectors.toMap(ProductSpecification::getId, s -> s));
+
+                if (groupReq.getSpecifications() != null) {
+                    List<ProductSpecification> updatedSpecs = groupReq.getSpecifications().stream().map(specReq -> {
+                        ProductSpecification spec = (specReq.getId() != null && existingSpecs.containsKey(specReq.getId()))
+                                ? existingSpecs.get(specReq.getId())
+                                : new ProductSpecification();
+                        spec.setAttributeName(specReq.getAttributeName());
+                        spec.setAttributeValue(specReq.getAttributeValue());
+                        spec.setGroup(group);
+                        return spec;
+                    }).toList();
+                    group.setSpecifications(new HashSet<>(updatedSpecs));
+                }
+
+                return group;
+            }).toList();
+
+            product.setSpecificationGroups(new HashSet<>(updatedGroups));
+        }
+
+        // ✅ images
+       /* if (request.getImages() != null) {
+            List<ProductImage> updatedImages = request.getImages().stream().map(imgReq -> {
+                ProductImage image = (imgReq.getId() != null)
+                        ? product.getImages().stream().filter(i -> i.getId().equals(imgReq.getId())).findFirst().orElse(new ProductImage())
+                        : new ProductImage();
+                image.setImageUrl(imgReq.getImageUrl());
+                image.setIsPrimary(imgReq.getIsPrimary());
+                image.setSortOrder(imgReq.getSortOrder());
+                image.setProduct(product);
+                return image;
+            }).toList();
+
+            product.setImages(new HashSet<>(updatedImages));
+        }*/
+
+        Product saved = productRepository.save(product);
+        return modelMapper.map(saved, ProductResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public ProductVariantResponse updateVariant(UUID variantId, ProductVariantUpdateRequest request) {
+        ProductVariant variant = variantRepository.findById(variantId)
+                .orElseThrow(() -> new RuntimeException("Variant not found"));
+
+        variant.setSku(request.getSku());
+        variant.setPrice(request.getPrice());
+
+        // ✅ options
+        if (request.getOptions() != null) {
+            List<ProductVariantOption> updatedOptions = request.getOptions().stream().map(optReq -> {
+                ProductOptionValue optionValue = variant.getProduct().getOptions().stream()
+                        .flatMap(o -> o.getValues().stream())
+                        .filter(v -> v.getId().equals(optReq.getOptionValueId()))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Option value not found"));
+
+                ProductVariantOption variantOption = (optReq.getId() != null)
+                        ? variant.getVariantOptions().stream()
+                        .filter(vo -> vo.getId().equals(optReq.getId()))
+                        .findFirst()
+                        .orElse(new ProductVariantOption())
+                        : new ProductVariantOption();
+
+                variantOption.setOptionValue(optionValue);
+                variantOption.setVariant(variant);
+                return variantOption;
+            }).toList();
+
+            variant.setVariantOptions(new HashSet<>(updatedOptions));
+        }
+
+        // ✅ images
+        if (request.getImages() != null) {
+            List<ProductImage> updatedImages = request.getImages().stream().map(imgReq -> {
+                ProductImage image = (imgReq.getId() != null)
+                        ? variant.getImages().stream().filter(i -> i.getId().equals(imgReq.getId())).findFirst().orElse(new ProductImage())
+                        : new ProductImage();
+                image.setImageUrl(imgReq.getImageUrl());
+                image.setIsPrimary(imgReq.getIsPrimary());
+                image.setSortOrder(imgReq.getSortOrder());
+                image.setVariant(variant);
+                return image;
+            }).toList();
+
+            variant.setImages(new HashSet<>(updatedImages));
+        }
+
+        ProductVariant saved = variantRepository.save(variant);
+        return modelMapper.map(saved, ProductVariantResponse.class);
     }
 }

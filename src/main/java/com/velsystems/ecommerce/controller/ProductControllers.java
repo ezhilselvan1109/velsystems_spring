@@ -1,6 +1,8 @@
 package com.velsystems.ecommerce.controller;
 
 import com.velsystems.ecommerce.dto.request.product.create.ProductCreateRequest;
+import com.velsystems.ecommerce.dto.request.product.update.ProductUpdateRequest;
+import com.velsystems.ecommerce.dto.request.product.update.variant.ProductVariantUpdateRequest;
 import com.velsystems.ecommerce.dto.response.product.ProductResponse;
 import com.velsystems.ecommerce.dto.request.product.create.variant.ProductVariantCreateRequest;
 import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantResponse;
@@ -128,4 +130,19 @@ public class ProductControllers {
     public ResponseEntity<List<ProductVariantResponse>> getVariants(@PathVariable UUID productId) {
         return ResponseEntity.ok(productService.getVariantsByProduct(productId));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(
+            @PathVariable UUID id,
+            @RequestBody ProductUpdateRequest request) {
+        return ResponseEntity.ok(productService.updateProduct(id, request));
+    }
+
+    @PutMapping("/variants/{variantId}")
+    public ResponseEntity<ProductVariantResponse> updateVariant(
+            @PathVariable UUID variantId,
+            @RequestBody ProductVariantUpdateRequest request) {
+        return ResponseEntity.ok(productService.updateVariant(variantId, request));
+    }
+
 }
