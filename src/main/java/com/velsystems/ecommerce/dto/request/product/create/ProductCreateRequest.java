@@ -1,6 +1,7 @@
-package com.velsystems.ecommerce.dto;
+package com.velsystems.ecommerce.dto.request.product.create;
 
-import com.velsystems.ecommerce.dto.request.product.specification.ProductSpecificationGroupRequest;
+import com.velsystems.ecommerce.dto.request.product.create.variant.ProductOptionRequest;
+import com.velsystems.ecommerce.dto.request.product.create.specification.ProductSpecificationGroupRequest;
 import lombok.*;
 
 import java.util.List;

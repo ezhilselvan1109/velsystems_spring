@@ -1,6 +1,6 @@
-package com.velsystems.ecommerce.dto;
+package com.velsystems.ecommerce.dto.request.product.create.variant;
 
-import com.velsystems.ecommerce.dto.request.product.ProductImageRequest;
+import com.velsystems.ecommerce.dto.request.product.create.ProductImageRequest;
 import lombok.*;
 
 import java.math.BigDecimal;

@@ -1,4 +1,4 @@
-package com.velsystems.ecommerce.dto;
+package com.velsystems.ecommerce.dto.request.product.create.variant;
 
 import lombok.*;
 

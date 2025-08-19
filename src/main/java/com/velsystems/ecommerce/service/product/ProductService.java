@@ -1,9 +1,9 @@
 package com.velsystems.ecommerce.service.product;
 
-import com.velsystems.ecommerce.dto.ProductCreateRequest;
-import com.velsystems.ecommerce.dto.ProductResponse;
-import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
-import com.velsystems.ecommerce.dto.ProductVariantResponse;
+import com.velsystems.ecommerce.dto.request.product.create.ProductCreateRequest;
+import com.velsystems.ecommerce.dto.response.product.ProductResponse;
+import com.velsystems.ecommerce.dto.request.product.create.variant.ProductVariantCreateRequest;
+import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantResponse;
 import com.velsystems.ecommerce.enums.Status;
 import org.springframework.data.domain.Page;
 

@@ -1,12 +1,9 @@
-package com.velsystems.ecommerce.dto;
+package com.velsystems.ecommerce.dto.response.product.variant;
 
-import com.velsystems.ecommerce.dto.request.product.ProductImageRequest;
 import com.velsystems.ecommerce.dto.response.product.ProductImageResponse;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 

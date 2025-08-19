@@ -1,5 +1,6 @@
-package com.velsystems.ecommerce.dto;
+package com.velsystems.ecommerce.dto.response.product.variant;
 
+import com.velsystems.ecommerce.dto.response.product.variant.ProductOptionValueResponse;
 import lombok.*;
 
 import java.util.List;

@@ -1,9 +1,10 @@
-package com.velsystems.ecommerce.dto;
+package com.velsystems.ecommerce.dto.response.product;
 
 import com.velsystems.ecommerce.dto.response.BrandResponse;
 import com.velsystems.ecommerce.dto.response.CategoryResponse;
-import com.velsystems.ecommerce.dto.response.product.ProductImageResponse;
 import com.velsystems.ecommerce.dto.response.product.specification.ProductSpecificationGroupResponse;
+import com.velsystems.ecommerce.dto.response.product.variant.ProductOptionResponse;
+import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantResponse;
 import com.velsystems.ecommerce.enums.Status;
 import lombok.*;
 
