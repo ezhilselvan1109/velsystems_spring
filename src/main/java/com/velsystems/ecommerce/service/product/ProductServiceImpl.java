@@ -156,6 +156,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProduct(UUID productId) {
         if (!productRepository.existsById(productId)) {
             throw new RuntimeException("Product not found");
@@ -301,22 +302,6 @@ public class ProductServiceImpl implements ProductService {
 
             product.setSpecificationGroups(new HashSet<>(updatedGroups));
         }
-
-        // ✅ images
-       /* if (request.getImages() != null) {
-            List<ProductImage> updatedImages = request.getImages().stream().map(imgReq -> {
-                ProductImage image = (imgReq.getId() != null)
-                        ? product.getImages().stream().filter(i -> i.getId().equals(imgReq.getId())).findFirst().orElse(new ProductImage())
-                        : new ProductImage();
-                image.setImageUrl(imgReq.getImageUrl());
-                image.setIsPrimary(imgReq.getIsPrimary());
-                image.setSortOrder(imgReq.getSortOrder());
-                image.setProduct(product);
-                return image;
-            }).toList();
-
-            product.setImages(new HashSet<>(updatedImages));
-        }*/
 
         Product saved = productRepository.save(product);
         return modelMapper.map(saved, ProductResponse.class);

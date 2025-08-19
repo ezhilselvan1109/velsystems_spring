@@ -17,7 +17,6 @@ public class ProductVariantResponse {
     private UUID id;
     private String sku;
     private Double price;
-    private Integer stock;
 
     private Set<ProductVariantOptionResponse> options = new HashSet<>();
     private Set<ProductImageResponse> images = new HashSet<>();
