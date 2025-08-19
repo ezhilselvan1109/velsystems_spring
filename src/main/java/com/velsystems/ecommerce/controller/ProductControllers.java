@@ -3,8 +3,10 @@ package com.velsystems.ecommerce.controller;
 import com.velsystems.ecommerce.dto.ProductCreateRequest;
 import com.velsystems.ecommerce.dto.ProductResponse;
 import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
+import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +54,29 @@ public class ProductControllers {
         return ResponseEntity.noContent().build();
     }
 
+    // ✅ Get all products with sorting
+    @GetMapping
+    public ResponseEntity<Page<ProductResponse>> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        return ResponseEntity.ok(productService.getAllProducts(page, size, sortBy, direction));
+    }
+
+    // ✅ Filter products with sorting
+    @GetMapping("/filter")
+    public ResponseEntity<Page<ProductResponse>> filterProducts(
+            @RequestParam(required = false) UUID brandId,
+            @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "ACTIVE") Status status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        return ResponseEntity.ok(productService.filterProducts(brandId, categoryId, keyword, status, page, size, sortBy, direction));
+    }
 
 
 }

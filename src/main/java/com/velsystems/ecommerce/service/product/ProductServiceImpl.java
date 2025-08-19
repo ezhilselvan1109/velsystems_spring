@@ -3,6 +3,7 @@ package com.velsystems.ecommerce.service.product;
 import com.velsystems.ecommerce.dto.ProductCreateRequest;
 import com.velsystems.ecommerce.dto.ProductResponse;
 import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
+import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.model.Brand;
 import com.velsystems.ecommerce.model.Category;
 import com.velsystems.ecommerce.model.product.*;
@@ -10,6 +11,10 @@ import com.velsystems.ecommerce.repository.product.ProductRepository;
 import com.velsystems.ecommerce.repository.product.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -160,4 +165,38 @@ public class ProductServiceImpl implements ProductService {
         }
         variantRepository.deleteById(variantId);
     }
+
+    @Override
+    public Page<ProductResponse> getAllProducts(int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return productRepository.findAll(pageable)
+                .map(p -> modelMapper.map(p, ProductResponse.class));
+    }
+
+    @Override
+    public Page<ProductResponse> filterProducts(UUID brandId, UUID categoryId, String keyword, Status status,
+                                                int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        keyword = (keyword == null) ? "" : keyword;
+
+        if (brandId != null) {
+            return productRepository.findByBrandIdAndStatusAndNameContainingIgnoreCase(brandId, status, keyword, pageable)
+                    .map(p -> modelMapper.map(p, ProductResponse.class));
+        } else if (categoryId != null) {
+            return productRepository.findByCategoryIdAndStatusAndNameContainingIgnoreCase(categoryId, status, keyword, pageable)
+                    .map(p -> modelMapper.map(p, ProductResponse.class));
+        } else {
+            return productRepository.findAll(pageable)
+                    .map(p -> modelMapper.map(p, ProductResponse.class));
+        }
+    }
+
 }
