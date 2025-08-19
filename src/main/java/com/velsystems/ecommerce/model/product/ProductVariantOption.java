@@ -1,4 +1,3 @@
-
 package com.velsystems.ecommerce.model.product;
 
 import jakarta.persistence.*;
@@ -10,17 +9,16 @@ import java.util.UUID;
 @Table(name = "product_variant_options")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ProductVariantOption {
+
     @Id
     @GeneratedValue
     private UUID id;
 
-    private String value; // Example: M, Red
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id")
+    @JoinColumn(name = "variant_id", nullable = false)
     private ProductVariant variant;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "option_id")
-    private ProductOption option;
+    @JoinColumn(name = "option_value_id", nullable = false)
+    private ProductOptionValue optionValue;
 }

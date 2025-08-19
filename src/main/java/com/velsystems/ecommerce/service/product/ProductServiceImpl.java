@@ -1,173 +1,67 @@
 package com.velsystems.ecommerce.service.product;
 
-import com.velsystems.ecommerce.dto.request.product.ProductRequest;
-import com.velsystems.ecommerce.dto.response.product.ProductImageResponse;
-import com.velsystems.ecommerce.dto.response.product.ProductResponse;
-import com.velsystems.ecommerce.dto.response.product.specification.ProductSpecificationGroupResponse;
-import com.velsystems.ecommerce.dto.response.product.specification.ProductSpecificationResponse;
-import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantOptionResponse;
-import com.velsystems.ecommerce.dto.response.product.variant.ProductVariantResponse;
-import com.velsystems.ecommerce.model.*;
+import com.velsystems.ecommerce.dto.ProductCreateRequest;
+import com.velsystems.ecommerce.dto.ProductResponse;
+import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
+import com.velsystems.ecommerce.model.Brand;
+import com.velsystems.ecommerce.model.Category;
 import com.velsystems.ecommerce.model.product.*;
-import com.velsystems.ecommerce.repository.*;
-import com.velsystems.ecommerce.repository.product.ProductOptionRepository;
 import com.velsystems.ecommerce.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final BrandRepository brandRepository;
-    private final CategoryRepository categoryRepository;
-    private final ProductOptionRepository optionRepository;
     private final ModelMapper modelMapper;
 
-    // ✅ Create
     @Override
-    public ProductResponse createProduct(ProductRequest request) {
-        Product product = buildProductFromRequest(request, null);
-        productRepository.save(product);
-        return mapToResponse(product);
-    }
+    @Transactional
+    public ProductResponse createProduct(ProductCreateRequest request) {
+        // Build product
+        Product product = Product.builder()
+                .brand(Brand.builder().id(request.getBrandId()).build())
+                .category(Category.builder().id(request.getCategoryId()).build())
+                .name(request.getName())
+                .slug(request.getSlug())
+                .description(request.getDescription())
+                .build();
 
-    // ✅ Update (rebuild nested children)
-    @Override
-    public ProductResponse updateProduct(UUID id, ProductRequest request) {
-        Product existing = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-
-        // clear children before re-adding
-        existing.getVariants().clear();
-        existing.getImages().clear();
-        existing.getSpecificationGroups().clear();
-
-        Product updated = buildProductFromRequest(request, existing);
-        productRepository.save(updated);
-
-        return mapToResponse(updated);
-    }
-
-    // ✅ Delete
-    @Override
-    public void deleteProduct(UUID id) {
-        if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Product not found");
-        }
-        productRepository.deleteById(id);
-    }
-
-    // ✅ Get One
-    @Override
-    public ProductResponse getProductById(UUID id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        return mapToResponse(product);
-    }
-
-    // ✅ Get All (no pagination)
-    @Override
-    public List<ProductResponse> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
-
-    // ✅ Get All (pagination)
-    @Override
-    public Page<ProductResponse> getAllProductsPaged(int page, int size) {
-        PageRequest pageable = PageRequest.of(page, size);
-        Page<Product> productPage = productRepository.findAll(pageable);
-
-        List<ProductResponse> responses = productPage.getContent().stream()
-                .map(this::mapToResponse)
-                .toList();
-
-        return new PageImpl<>(responses, pageable, productPage.getTotalElements());
-    }
-
-    // ------------------- Helper: Build Product with Nested -------------------
-    private Product buildProductFromRequest(ProductRequest request, Product base) {
-        Product product = (base == null) ? new Product() : base;
-
-        product.setName(request.getName());
-        product.setSlug(request.getSlug());
-        product.setDescription(request.getDescription());
-
-        Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new RuntimeException("Brand not found"));
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-
-        product.setBrand(brand);
-        product.setCategory(category);
-
-        // ---- Images ----
-        if (request.getImages() != null) {
-            request.getImages().forEach(imgReq -> {
-                ProductImage img = ProductImage.builder()
-                        .imageUrl(imgReq.getImageUrl())
-                        .isPrimary(imgReq.getIsPrimary())
-                        .sortOrder(imgReq.getSortOrder())
+        // Add options + values safely
+        if (request.getOptions() != null) {
+            request.getOptions().forEach(optionRequest -> {
+                ProductOption option = ProductOption.builder()
+                        .name(optionRequest.getName())
                         .product(product)
-                        .build();
-                product.getImages().add(img);
-            });
-        }
-
-        // ---- Variants ----
-        if (request.getVariants() != null) {
-            request.getVariants().forEach(vReq -> {
-                ProductVariant variant = ProductVariant.builder()
-                        .sku(vReq.getSku())
-                        .price(vReq.getPrice())
-                        .product(product)
+                        .values(new HashSet<>()) // initialize set
                         .build();
 
-                // Variant Options
-                if (vReq.getOptions() != null) {
-                    vReq.getOptions().forEach(optReq -> {
-                        ProductOption option = optionRepository.findById(optReq.getOptionId())
-                                .orElseThrow(() -> new RuntimeException("Option not found"));
-                        ProductVariantOption variantOpt = ProductVariantOption.builder()
+                if (optionRequest.getValues() != null) {
+                    optionRequest.getValues().forEach(valueRequest -> {
+                        ProductOptionValue value = ProductOptionValue.builder()
+                                .value(valueRequest.getValue())
                                 .option(option)
-                                .value(optReq.getValue())
-                                .variant(variant)
                                 .build();
-                        variant.getOptions().add(variantOpt);
+                        option.getValues().add(value);
                     });
                 }
-
-                // Variant Images
-                if (vReq.getImages() != null) {
-                    vReq.getImages().forEach(imgReq -> {
-                        ProductImage vImg = ProductImage.builder()
-                                .imageUrl(imgReq.getImageUrl())
-                                .isPrimary(imgReq.getIsPrimary())
-                                .sortOrder(imgReq.getSortOrder())
-                                .variant(variant)
-                                .build();
-                        variant.getImages().add(vImg);
-                    });
-                }
-
-                product.getVariants().add(variant);
+                product.getOptions().add(option);
             });
         }
 
-        // ---- Specifications ----
         if (request.getSpecificationGroups() != null) {
             request.getSpecificationGroups().forEach(groupReq -> {
                 ProductSpecificationGroup group = ProductSpecificationGroup.builder()
                         .name(groupReq.getName())
                         .product(product)
+                        .specifications(new HashSet<>())
                         .build();
 
                 if (groupReq.getSpecifications() != null) {
@@ -185,69 +79,66 @@ public class ProductServiceImpl implements ProductService {
             });
         }
 
-        return product;
+        // Save product
+        Product savedProduct = productRepository.save(product);
+
+        // Map entity to response DTO using ModelMapper
+        return modelMapper.map(savedProduct, ProductResponse.class);
     }
 
-    // ------------------- Helper: Map to Response -------------------
-    private ProductResponse mapToResponse(Product product) {
-        ProductResponse response = modelMapper.map(product, ProductResponse.class);
-        response.setBrandName(product.getBrand() != null ? product.getBrand().getName() : null);
-        response.setCategoryName(product.getCategory() != null ? product.getCategory().getName() : null);
+    @Override
+    @Transactional(readOnly = true)
+    public ProductResponse getProductById(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        return modelMapper.map(product, ProductResponse.class);
+    }
 
-        // Images
-        response.setImages(product.getImages().stream().map(img -> {
-            ProductImageResponse r = new ProductImageResponse();
-            r.setId(img.getId());
-            r.setImageUrl(img.getImageUrl());
-            r.setIsPrimary(img.getIsPrimary());
-            r.setSortOrder(img.getSortOrder());
-            return r;
-        }).toList());
+    @Override
+    @Transactional
+    public ProductResponse createVariant(UUID productId, ProductVariantCreateRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        // Variants
-        response.setVariants(product.getVariants().stream().map(v -> {
-            ProductVariantResponse vr = new ProductVariantResponse();
-            vr.setId(v.getId());
-            vr.setSku(v.getSku());
-            vr.setPrice(v.getPrice());
+        ProductVariant variant = ProductVariant.builder()
+                .sku(request.getSku())
+                .price(request.getPrice())
+                .product(product)
+                .build();
 
-            vr.setOptions(v.getOptions().stream().map(o -> {
-                ProductVariantOptionResponse or = new ProductVariantOptionResponse();
-                or.setId(o.getId());
-                or.setValue(o.getValue());
-                or.setOptionName(o.getOption().getName());
-                return or;
-            }).toList());
+        if (request.getOptions() != null) {
+            request.getOptions().forEach(optReq -> {
+                ProductOptionValue optionValue = product.getOptions().stream()
+                        .flatMap(o -> o.getValues().stream())
+                        .filter(v -> v.getId().equals(optReq.getOptionValueId()))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Option value not found"));
 
-            vr.setImages(v.getImages().stream().map(img -> {
-                ProductImageResponse ir = new ProductImageResponse();
-                ir.setId(img.getId());
-                ir.setImageUrl(img.getImageUrl());
-                ir.setIsPrimary(img.getIsPrimary());
-                ir.setSortOrder(img.getSortOrder());
-                return ir;
-            }).toList());
+                ProductVariantOption variantOption = ProductVariantOption.builder()
+                        .variant(variant)
+                        .optionValue(optionValue)
+                        .build();
 
-            return vr;
-        }).toList());
+                variant.getVariantOptions().add(variantOption);
+            });
+        }
 
-        // Specs
-        response.setSpecificationGroups(product.getSpecificationGroups().stream().map(g -> {
-            ProductSpecificationGroupResponse gr = new ProductSpecificationGroupResponse();
-            gr.setId(g.getId());
-            gr.setName(g.getName());
+        if (request.getImages() != null) {
+            request.getImages().forEach(imgReq -> {
+                ProductImage variantImage = ProductImage.builder()
+                        .imageUrl(imgReq.getImageUrl())
+                        .isPrimary(imgReq.getIsPrimary())
+                        .sortOrder(imgReq.getSortOrder())
+                        .variant(variant)
+                        .build();
+                variant.getImages().add(variantImage);
+            });
+        }
 
-            gr.setSpecifications(g.getSpecifications().stream().map(s -> {
-                ProductSpecificationResponse sr = new ProductSpecificationResponse();
-                sr.setId(s.getId());
-                sr.setAttributeName(s.getAttributeName());
-                sr.setAttributeValue(s.getAttributeValue());
-                return sr;
-            }).toList());
 
-            return gr;
-        }).toList());
+        product.getVariants().add(variant);
+        Product savedProduct = productRepository.save(product);
 
-        return response;
+        return modelMapper.map(savedProduct, ProductResponse.class);
     }
 }

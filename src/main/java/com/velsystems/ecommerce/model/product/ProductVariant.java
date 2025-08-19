@@ -1,4 +1,3 @@
-
 package com.velsystems.ecommerce.model.product;
 
 import jakarta.persistence.*;
@@ -13,13 +12,14 @@ import java.util.UUID;
 @Table(name = "product_variants")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class ProductVariant {
+
     @Id
     @GeneratedValue
     private UUID id;
 
-    @Column(nullable = false, unique = true)
     private String sku;
 
+    @Column(nullable = false)
     private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,8 +27,10 @@ public class ProductVariant {
     private Product product;
 
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductVariantOption> options = new HashSet<>();
+    @Builder.Default
+    private Set<ProductVariantOption> variantOptions = new HashSet<>();
 
     @OneToMany(mappedBy = "variant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductImage> images = new HashSet<>(); // 👈 Variant-specific images
+    @Builder.Default
+    private Set<ProductImage> images = new HashSet<>();
 }

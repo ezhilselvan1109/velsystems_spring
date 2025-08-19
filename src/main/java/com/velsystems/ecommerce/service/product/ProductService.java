@@ -1,17 +1,14 @@
 package com.velsystems.ecommerce.service.product;
 
-import com.velsystems.ecommerce.dto.request.product.ProductRequest;
-import com.velsystems.ecommerce.dto.response.product.ProductResponse;
-import org.springframework.data.domain.Page;
+import com.velsystems.ecommerce.dto.ProductCreateRequest;
+import com.velsystems.ecommerce.dto.ProductResponse;
+import com.velsystems.ecommerce.dto.ProductVariantCreateRequest;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
-    ProductResponse createProduct(ProductRequest request);
-    ProductResponse updateProduct(UUID id, ProductRequest request);
-    void deleteProduct(UUID id);
-    ProductResponse getProductById(UUID id);
-    List<ProductResponse> getAllProducts();
-    Page<ProductResponse> getAllProductsPaged(int page, int size);
+    ProductResponse createProduct(ProductCreateRequest request);
+    ProductResponse getProductById(UUID productId);
+    ProductResponse createVariant(UUID productId, ProductVariantCreateRequest request);
 }
+

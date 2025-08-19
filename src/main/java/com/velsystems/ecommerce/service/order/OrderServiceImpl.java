@@ -78,8 +78,8 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setProduct(product);
             orderItem.setVariant(variant);
             orderItem.setTitle(product.getName());
-            orderItem.setVariantTitle(String.join(",",
-                    variant.getOptions().stream().map(o -> o.getValue()).toList()));
+            /*orderItem.setVariantTitle(String.join(",",
+                    variant.getOptions().stream().map(o -> o.getValue()).toList()));*/
             orderItem.setSku(variant.getSku());
             orderItem.setQuantity(itemReq.getQuantity());
             orderItem.setUnitPrice(unitPrice);
