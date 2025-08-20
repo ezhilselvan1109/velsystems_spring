@@ -1,17 +1,20 @@
 package com.velsystems.ecommerce.service.user;
 
-import com.velsystems.ecommerce.model.User;
-import com.velsystems.ecommerce.repository.UserRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.velsystems.ecommerce.dto.request.user.UpdatePersonalInfoRequest;
+import com.velsystems.ecommerce.dto.request.user.UpdateEmailRequest;
+import com.velsystems.ecommerce.dto.request.user.UpdatePhoneRequest;
+import com.velsystems.ecommerce.dto.request.user.VerifyUpdateOtpRequest;
+import com.velsystems.ecommerce.dto.response.UserResponse;
+import com.velsystems.ecommerce.dto.response.otp.OtpSendResponse;
 
-@Service
-@AllArgsConstructor
-public class UserService implements IUserService{
-    private final UserRepository userRepo;
-    public User findByEmailOrPhoneNumber(String identifier) {
-        return userRepo.findByEmail(identifier)
-                .or(() -> userRepo.findByPhoneNumber(identifier))
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
+public interface UserService {
+    UserResponse updatePersonalInfo(UpdatePersonalInfoRequest request);
+
+    OtpSendResponse requestEmailUpdateOtp(UpdateEmailRequest request);
+
+    UserResponse verifyEmailUpdateOtp(VerifyUpdateOtpRequest request);
+
+    OtpSendResponse requestPhoneUpdateOtp(UpdatePhoneRequest request);
+
+    UserResponse verifyPhoneUpdateOtp(VerifyUpdateOtpRequest request);
 }

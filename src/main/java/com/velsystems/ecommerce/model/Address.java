@@ -1,5 +1,6 @@
 package com.velsystems.ecommerce.model;
 
+import com.velsystems.ecommerce.enums.AddressType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,13 +22,15 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    private String addressLine1;
-    private String addressLine2;
+    private String name;
+    private String phone;
+    private String address;
     private String city;
     private String state;
     private String country;
-    private String zipCode;
-
+    private String pinCode;
+    private String landmark;
+    private String alternatePhone;
+    private AddressType addressType;
     private Boolean isDefault = false;
 }

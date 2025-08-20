@@ -1,6 +1,5 @@
 package com.velsystems.ecommerce.dto.request.order;
 
-import com.velsystems.ecommerce.dto.request.order.OrderItemRequest;
 import lombok.*;
 
 import java.util.List;
@@ -11,6 +10,6 @@ public class OrderRequest {
     private UUID userId;
     private UUID billingAddressId;
     private UUID shippingAddressId;
-    private UUID couponId;              // optional
+    private UUID couponId;
     private List<OrderItemRequest> items;
 }

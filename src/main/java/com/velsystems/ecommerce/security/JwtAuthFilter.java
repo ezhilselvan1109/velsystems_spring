@@ -1,7 +1,6 @@
 package com.velsystems.ecommerce.security;
 
 import com.velsystems.ecommerce.model.User;
-import com.velsystems.ecommerce.service.user.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -24,7 +23,6 @@ import java.util.Collections;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
