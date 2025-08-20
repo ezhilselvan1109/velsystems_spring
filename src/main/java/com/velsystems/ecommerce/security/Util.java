@@ -16,12 +16,6 @@ public class Util {
     private final UserService userService;
 
     public UUID getAuthenticatedUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal() == null) {
-            return null;
-        }
-        String email = authentication.getPrincipal().toString();
-        User user = userService.findByEmailOrPhoneNumber(email);
-        return user != null ? user.getId() : null;
+        return null;
     }
 }

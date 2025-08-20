@@ -1,6 +1,7 @@
 package com.velsystems.ecommerce.security;
 
 import com.velsystems.ecommerce.dto.response.UserResponse;
+import com.velsystems.ecommerce.enums.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
@@ -21,9 +22,9 @@ public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     // Generate token safely
-    public String generateToken(UserResponse user) {
+    public String generateToken(Role primaryRole, UserResponse user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole().name());
+        claims.put("role", primaryRole);
 
         long nowMillis = System.currentTimeMillis();
 
@@ -34,16 +35,6 @@ public class JwtUtil {
                 .setExpiration(new Date(nowMillis + JWT_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    // Validate token against email
-    public boolean validateToken(String token, String email) {
-        try {
-            String tokenEmail = extractUsername(token);
-            return tokenEmail.equals(email) && !isTokenExpired(token);
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
     }
 
     // Generic validate (true if not expired and signature matches)

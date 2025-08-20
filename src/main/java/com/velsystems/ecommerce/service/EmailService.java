@@ -20,8 +20,7 @@ public class EmailService {
         String content = """
                 <html>
                 <body style="font-family: Arial, sans-serif; color: #333;">
-                    <p>Hi <b>%s</b>,</p>
-                    <p>Your OTP: <b>%s</b></p>
+                    <p>Your OTP is: <b>%s</b></p>
                     <p>This OTP is valid for 5 minutes.</p>
                 </body>
                 </html>

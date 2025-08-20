@@ -33,8 +33,6 @@ public class User {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    private Boolean verified = false;
-
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -46,9 +44,6 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<OtpCode> otps = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Address> addresses = new HashSet<>();
