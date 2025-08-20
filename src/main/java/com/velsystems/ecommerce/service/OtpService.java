@@ -1,9 +1,11 @@
 package com.velsystems.ecommerce.service;
 
+import com.velsystems.ecommerce.dto.response.otp.OtpResponse;
 import com.velsystems.ecommerce.model.OtpToken;
 import com.velsystems.ecommerce.repository.OtpTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,25 +16,47 @@ import java.util.Random;
 public class OtpService {
     private final OtpTokenRepository otpRepo;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void generateAndSendOtp(String email) {
+    public OtpResponse generateAndSendOtp(String email) {
         otpRepo.deleteByEmail(email);
 
-        String otp = String.format("%06d", new Random().nextInt(999999));
+        String rawOtp = String.format("%06d", new Random().nextInt(999999));
+        String hashedOtp = passwordEncoder.encode(rawOtp);
         OtpToken token = OtpToken.builder()
                 .email(email)
-                .otp(otp)
+                .otp(hashedOtp)
                 .expiryTime(LocalDateTime.now().plusMinutes(5))
                 .build();
-        otpRepo.save(token);
+        OtpToken tokens= otpRepo.save(token);
 
-        emailService.sendOtp(email, otp);
+        emailService.sendOtp(email, rawOtp);
+
+        return OtpResponse.builder()
+                .requestId(tokens.getId())
+                .email(email)
+                .expiryDate(token.getExpiryTime())
+                .tooltipText("Enter OTP sent to " + email)
+                .build();
     }
 
-    public boolean validateOtp(String email, String otp) {
-        return otpRepo.findByEmailAndOtp(email, otp)
-                .filter(t -> t.getExpiryTime().isAfter(LocalDateTime.now()))
-                .isPresent();
+    @Transactional
+    public boolean validateOtp(String email, String otp, String requestId) {
+        return otpRepo.findByEmailAndId(email, requestId)
+                .map(token -> {
+                    if (token.getExpiryTime().isBefore(LocalDateTime.now())) {
+                        return false;
+                    }
+
+                    if (passwordEncoder.matches(otp, token.getOtp())) {
+                        otpRepo.delete(token);
+                        return true;
+                    } else {
+                        otpRepo.save(token);
+                        return false;
+                    }
+                })
+                .orElse(false);
     }
 }

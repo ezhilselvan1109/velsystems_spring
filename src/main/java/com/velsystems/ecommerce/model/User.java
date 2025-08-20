@@ -29,9 +29,15 @@ public class User {
     @Column(unique = true)
     private String phoneNumber;
 
-    private String fullName;
+    private String firstName;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private String lastName;
+
+    private String gender;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
@@ -50,4 +56,15 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Review> reviews = new HashSet<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

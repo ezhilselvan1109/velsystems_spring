@@ -3,6 +3,8 @@ package com.velsystems.ecommerce.controller;
 import com.velsystems.ecommerce.dto.request.auth.SendOtpRequest;
 import com.velsystems.ecommerce.dto.request.auth.VerifyOtpRequest;
 import com.velsystems.ecommerce.dto.response.UserResponse;
+import com.velsystems.ecommerce.dto.response.otp.OtpResponse;
+import com.velsystems.ecommerce.dto.response.otp.OtpSendResponse;
 import com.velsystems.ecommerce.enums.Role;
 import com.velsystems.ecommerce.enums.Status;
 import com.velsystems.ecommerce.model.User;
@@ -17,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -32,14 +34,20 @@ public class AuthController {
 
     @PostMapping("/send-otp")
     public ResponseEntity<ApiResponse> sendOtp(@RequestBody SendOtpRequest request) {
-        otpService.generateAndSendOtp(request.getEmail());
-        return ResponseEntity.ok(new ApiResponse("success", "OTP sent to email"));
+        OtpResponse otpResponse = otpService.generateAndSendOtp(request.getEmail());
+
+        OtpSendResponse response = OtpSendResponse.builder()
+                .otpIdentifierInfo(List.of(otpResponse))
+                .toastMessage("OTP successfully sent to " + request.getEmail())
+                .build();
+
+        return ResponseEntity.ok(new ApiResponse("success", response));
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<ApiResponse> verifyOtp(@RequestBody VerifyOtpRequest request,
                                                  HttpServletResponse response) {
-        if (otpService.validateOtp(request.getEmail(), request.getOtp())) {
+        if (otpService.validateOtp(request.getEmail(), request.getOtp(), request.getRequestId())) {
             User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
             if (user == null) {
@@ -72,11 +80,11 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
         response.addCookie(CookieUtil.clearAuthCookie(PROD));
-        return ResponseEntity.ok(new ApiResponse("successful",null));
+        return ResponseEntity.ok(new ApiResponse("successful", null));
     }
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse> getMe() {
-        return null;
+        return null; // TODO implement
     }
 }
