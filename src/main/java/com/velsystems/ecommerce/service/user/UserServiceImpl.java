@@ -22,7 +22,8 @@ public class UserServiceImpl implements UserService {
     private final OtpService otpService;
     private final Util util;
 
-    private User getUser(){
+    @Override
+    public User getUser(){
         UUID userId=util.getAuthenticatedUserId();
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
