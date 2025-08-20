@@ -5,11 +5,12 @@ import lombok.*;
 import java.util.UUID;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class InventoryResponse {
+public class InventoryResponseDto {
+    private UUID id;
     private UUID variantId;
     private Integer inStock;
     private Integer reserved;
     private Integer sold;
     private Integer lowStockThreshold;
-    private boolean lowStock;  // derived
+    private String status; // Normal / LowStock / OutOfStock
 }

@@ -1,13 +1,16 @@
 package com.velsystems.ecommerce.service.inventory;
 
-import com.velsystems.ecommerce.dto.request.InventoryRequest;
-import com.velsystems.ecommerce.dto.response.InventoryResponse;
+import com.velsystems.ecommerce.dto.request.inventory.InventoryCreateRequestDto;
+import com.velsystems.ecommerce.dto.request.inventory.InventoryUpdateRequestDto;
+import com.velsystems.ecommerce.dto.response.InventoryResponseDto;
 import com.velsystems.ecommerce.model.Inventory;
+import com.velsystems.ecommerce.model.product.ProductVariant;
 import com.velsystems.ecommerce.repository.InventoryRepository;
 import com.velsystems.ecommerce.repository.product.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,63 +20,105 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class InventoryServiceImpl implements InventoryService {
+
     private final InventoryRepository inventoryRepository;
     private final ProductVariantRepository variantRepository;
+    private final ModelMapper mapper;
 
-    public InventoryResponse getByVariant(UUID variantId) {
-        Inventory inventory = inventoryRepository.findByVariantId(variantId)
-                .orElseThrow(() -> new RuntimeException("Inventory not found for variant " + variantId));
-        return mapToResponse(inventory);
+    private InventoryResponseDto mapToDto(Inventory inventory) {
+        InventoryResponseDto dto = mapper.map(inventory, InventoryResponseDto.class);
+        dto.setVariantId(inventory.getVariant().getId());
+        String status = inventory.getInStock() <= 0 ? "OUT_OF_STOCK" :
+                (inventory.getInStock() <= inventory.getLowStockThreshold() ? "LOW_STOCK" : "NORMAL");
+        dto.setStatus(status);
+        return dto;
     }
 
-    @Transactional
-    public InventoryResponse updateStock(InventoryRequest request) {
-        Inventory inventory = inventoryRepository.findByVariantId(request.getVariantId())
-                .orElseThrow(() -> new RuntimeException("Inventory not found"));
-
-        if (request.getInStock() != null) inventory.setInStock(request.getInStock());
-        if (request.getReserved() != null) inventory.setReserved(request.getReserved());
-        if (request.getSold() != null) inventory.setSold(request.getSold());
-        if (request.getLowStockThreshold() != null) inventory.setLowStockThreshold(request.getLowStockThreshold());
-
-        inventoryRepository.save(inventory);
-        return mapToResponse(inventory);
+    public InventoryResponseDto create(InventoryCreateRequestDto requestDto) {
+        Inventory inventory = mapper.map(requestDto, Inventory.class);
+        inventory.setId(UUID.randomUUID()); // only for create
+        return mapper.map(inventoryRepository.save(inventory), InventoryResponseDto.class);
     }
 
-    @Transactional
-    public InventoryResponse adjustStock(UUID variantId, int quantity) {
-        Inventory inventory = inventoryRepository.findByVariantId(variantId)
+    // ✅ Update
+    public InventoryResponseDto update(UUID id, InventoryUpdateRequestDto requestDto) {
+        Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
-        inventory.setInStock(inventory.getInStock() + quantity);
-        inventoryRepository.save(inventory);
+        // update only mutable fields
+        inventory.setReserved(requestDto.getReserved());
+        inventory.setInStock(requestDto.getInStock());
+        inventory.setLowStockThreshold(requestDto.getLowStockThreshold());
+        inventory.setInStock(requestDto.getInStock());
 
-        return mapToResponse(inventory);
+        return mapper.map(inventoryRepository.save(inventory), InventoryResponseDto.class);
     }
 
     @Override
-    public List<InventoryResponse> getAllInventories() {
-        return inventoryRepository.findAll()
-                .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
+    public InventoryResponseDto getByVariantId(UUID variantId) {
+        return inventoryRepository.findByVariantId(variantId)
+                .map(this::mapToDto)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
     }
 
     @Override
-    public Page<InventoryResponse> getInventoriesPage(int page, int size) {
-        return inventoryRepository.findAll(PageRequest.of(page, size))
-                .map(this::mapToResponse);
+    public List<InventoryResponseDto> getAll() {
+        return inventoryRepository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
-    private InventoryResponse mapToResponse(Inventory inventory) {
-        return InventoryResponse.builder()
-                .variantId(inventory.getVariant().getId())
-                .inStock(inventory.getInStock())
-                .reserved(inventory.getReserved())
-                .sold(inventory.getSold())
-                .lowStockThreshold(inventory.getLowStockThreshold())
-                .lowStock(inventory.getInStock() <= inventory.getLowStockThreshold())
-                .build();
+    @Override
+    public Page<InventoryResponseDto> getAllPaged(Pageable pageable) {
+        return inventoryRepository.findAll(pageable).map(this::mapToDto);
+    }
+
+    @Override
+    public void delete(UUID inventoryId) {
+        inventoryRepository.deleteById(inventoryId);
+    }
+
+    @Override
+    public InventoryResponseDto increaseStock(UUID variantId, int qty) {
+        Inventory inventory = inventoryRepository.findByVariantId(variantId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+        inventory.setInStock(inventory.getInStock() + qty);
+        return mapToDto(inventoryRepository.save(inventory));
+    }
+
+    @Override
+    public InventoryResponseDto decreaseStock(UUID variantId, int qty) {
+        Inventory inventory = inventoryRepository.findByVariantId(variantId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+        if (inventory.getInStock() < qty) {
+            throw new RuntimeException("Not enough stock available");
+        }
+        inventory.setInStock(inventory.getInStock() - qty);
+        inventory.setSold(inventory.getSold() + qty);
+        return mapToDto(inventoryRepository.save(inventory));
+    }
+
+    @Override
+    public InventoryResponseDto reserveStock(UUID variantId, int qty) {
+        Inventory inventory = inventoryRepository.findByVariantId(variantId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+        if (inventory.getInStock() < qty) {
+            throw new RuntimeException("Not enough stock to reserve");
+        }
+        inventory.setInStock(inventory.getInStock() - qty);
+        inventory.setReserved(inventory.getReserved() + qty);
+        return mapToDto(inventoryRepository.save(inventory));
+    }
+
+    @Override
+    public InventoryResponseDto releaseReserved(UUID variantId, int qty) {
+        Inventory inventory = inventoryRepository.findByVariantId(variantId)
+                .orElseThrow(() -> new RuntimeException("Inventory not found"));
+        if (inventory.getReserved() < qty) {
+            throw new RuntimeException("Not enough reserved stock");
+        }
+        inventory.setReserved(inventory.getReserved() - qty);
+        inventory.setInStock(inventory.getInStock() + qty);
+        return mapToDto(inventoryRepository.save(inventory));
     }
 }
