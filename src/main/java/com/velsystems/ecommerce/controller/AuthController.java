@@ -2,89 +2,69 @@ package com.velsystems.ecommerce.controller;
 
 import com.velsystems.ecommerce.dto.request.auth.SendOtpRequest;
 import com.velsystems.ecommerce.dto.request.auth.VerifyOtpRequest;
-import com.velsystems.ecommerce.dto.response.UserResponse;
-import com.velsystems.ecommerce.dto.response.otp.OtpResponse;
-import com.velsystems.ecommerce.dto.response.otp.OtpSendResponse;
-import com.velsystems.ecommerce.enums.Role;
-import com.velsystems.ecommerce.enums.Status;
-import com.velsystems.ecommerce.model.User;
-import com.velsystems.ecommerce.repository.UserRepository;
-import com.velsystems.ecommerce.response.ApiResponse;
-import com.velsystems.ecommerce.security.CookieUtil;
-import com.velsystems.ecommerce.security.JwtUtil;
-import com.velsystems.ecommerce.service.OtpService;
+import com.velsystems.ecommerce.response.api.ApiResponse;
+import com.velsystems.ecommerce.service.auth.IAuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import java.util.Set;
-
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "Auth management APIs")
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
-    private final OtpService otpService;
-    private final UserRepository userRepository;
-    private final boolean PROD = false;
+    private final IAuthService authService;
 
-    @PostMapping("/send-otp")
-    public ResponseEntity<ApiResponse> sendOtp(@RequestBody SendOtpRequest request) {
-        OtpResponse otpResponse = otpService.generateAndSendOtp(request.getEmail());
-
-        OtpSendResponse response = OtpSendResponse.builder()
-                .otpIdentifierInfo(List.of(otpResponse))
-                .toastMessage("OTP successfully sent to " + request.getEmail())
-                .build();
-
-        return ResponseEntity.ok(new ApiResponse("success", response));
+    @PostMapping("/otp/generate")
+    @Operation(
+            summary = "Generate and send OTP",
+            description = "Generates an OTP and sends it to the given email address."
+    )
+    public ResponseEntity<ApiResponse<?>> sendOtp(@RequestBody SendOtpRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("OTP sent successfully", authService.sendOtp(request)));
     }
 
-    @PostMapping("/verify-otp")
-    public ResponseEntity<ApiResponse> verifyOtp(@RequestBody VerifyOtpRequest request,
-                                                 HttpServletResponse response) {
-        if (otpService.validateOtp(request.getEmail(), request.getOtp(), request.getRequestId())) {
-            User user = userRepository.findByEmail(request.getEmail()).orElse(null);
+    @PostMapping("/user/verify-otp")
+    @Operation(
+            summary = "Verify OTP for User",
+            description = "Verifies OTP for a USER role and authenticates the user."
+    )
+    public ResponseEntity<ApiResponse<?>> userVerifyOtp(@RequestBody VerifyOtpRequest request,
+                                                        HttpServletResponse response) {
+        return ResponseEntity.ok(ApiResponse.success("OTP verified, user authenticated",
+                authService.verifyOtp(request, response, false)));
+    }
 
-            if (user == null) {
-                user = User.builder()
-                        .email(request.getEmail())
-                        .roles(Set.of(Role.USER))
-                        .status(Status.ACTIVE)
-                        .build();
-                userRepository.save(user);
-            }
-
-            Role primaryRole = user.getRoles().stream().findFirst().orElse(Role.USER);
-
-            UserResponse userResponse = UserResponse.builder()
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .phoneNumber(user.getPhoneNumber())
-                    .build();
-
-            String token = jwtUtil.generateToken(primaryRole,userResponse);
-
-            Cookie cookie = CookieUtil.buildAuthCookie(token, PROD);
-            response.addCookie(cookie);
-
-            return ResponseEntity.ok(new ApiResponse("success", "OTP verified, user authenticated"));
-        }
-        return ResponseEntity.badRequest().body(new ApiResponse("error", "Invalid or expired OTP"));
+    @PostMapping("/admin/verify-otp")
+    @Operation(
+            summary = "Verify OTP for Admin",
+            description = "Verifies OTP for an ADMIN role and authenticates the user."
+    )
+    public ResponseEntity<ApiResponse<?>> adminVerifyOtp(@RequestBody VerifyOtpRequest request,
+                                                         HttpServletResponse response) {
+        return ResponseEntity.ok(ApiResponse.success("OTP verified, admin authenticated",
+                authService.verifyOtp(request, response, true)));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
-        response.addCookie(CookieUtil.clearAuthCookie(PROD));
-        return ResponseEntity.ok(new ApiResponse("successful", null));
+    @Operation(
+            summary = "Logout",
+            description = "Clears authentication cookie and logs out the current user."
+    )
+    public ResponseEntity<ApiResponse<?>> logout(HttpServletResponse response) {
+        return ResponseEntity.ok(ApiResponse.success("Logout successful", authService.logout(response)));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse> getMe() {
-        return null; // TODO implement
+    @Operation(
+            summary = "Get Current User",
+            description = "Fetches details of the currently authenticated user."
+    )
+    public ResponseEntity<ApiResponse<?>> getMe() {
+        return ResponseEntity.ok(ApiResponse.success("Current user details", authService.getMe()));
     }
 }

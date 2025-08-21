@@ -20,4 +20,6 @@ public interface UserService {
     OtpSendResponse requestPhoneUpdateOtp(UpdatePhoneRequest request);
 
     UserResponse verifyPhoneUpdateOtp(VerifyUpdateOtpRequest request);
+
+    User findByEmail(String email);
 }

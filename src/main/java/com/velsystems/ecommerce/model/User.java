@@ -39,14 +39,7 @@ public class User {
 
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING)
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id")
-    )
-    @Column(name = "role")
-    private Set<Role> roles = new HashSet<>();
+    private Role role;
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
