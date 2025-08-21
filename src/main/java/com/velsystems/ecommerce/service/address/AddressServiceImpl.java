@@ -2,10 +2,10 @@ package com.velsystems.ecommerce.service.address;
 
 import com.velsystems.ecommerce.dto.request.AddressRequest;
 import com.velsystems.ecommerce.dto.response.AddressResponse;
+import com.velsystems.ecommerce.model.Account;
 import com.velsystems.ecommerce.model.Address;
-import com.velsystems.ecommerce.model.User;
 import com.velsystems.ecommerce.repository.AddressRepository;
-import com.velsystems.ecommerce.service.user.UserService;
+import com.velsystems.ecommerce.service.account.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -20,21 +20,21 @@ public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final ModelMapper modelMapper;
-    private final UserService userService;
+    private final AccountService accountService;
 
     @Override
     public AddressResponse add(AddressRequest request) {
-        User user = userService.getUser();
+        Account account = accountService.getAccount();
         Address address = modelMapper.map(request, Address.class);
-        address.setUser(user);
+        address.setAccount(account);
 
         return modelMapper.map(addressRepository.save(address), AddressResponse.class);
     }
 
     @Override
     public List<AddressResponse> getAll() {
-        User user = userService.getUser();
-        return addressRepository.findByUser(user).stream()
+        Account account = accountService.getAccount();
+        return addressRepository.findByAccount(account).stream()
                 .map(addr -> modelMapper.map(addr, AddressResponse.class))
                 .collect(Collectors.toList());
     }

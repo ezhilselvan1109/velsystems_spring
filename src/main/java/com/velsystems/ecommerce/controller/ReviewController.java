@@ -20,31 +20,31 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @Operation(summary = "Add a new review", description = "A user can add a review for a product. Each user can review a product only once.")
+    @Operation(summary = "Add a new review", description = "A account can add a review for a product. Each account can review a product only once.")
     @PostMapping
     public ResponseEntity<ApiResponse> addReview(
-            @RequestParam UUID userId, // ⚠️ Later replace with logged-in user
+            @RequestParam UUID accountId,
             @RequestBody ReviewRequestDto dto) {
-        ReviewResponseDto review = reviewService.addReview(userId, dto);
+        ReviewResponseDto review = reviewService.addReview(accountId, dto);
         return ResponseEntity.ok(new ApiResponse("Review added successfully", review));
     }
 
-    @Operation(summary = "Update an existing review", description = "User can update their own review by ID.")
+    @Operation(summary = "Update an existing review", description = "Account can update their own review by ID.")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateReview(
-            @RequestParam UUID userId,
+            @RequestParam UUID accountId,
             @PathVariable UUID id,
             @RequestBody ReviewRequestDto dto) {
-        ReviewResponseDto review = reviewService.updateReview(userId, id, dto);
+        ReviewResponseDto review = reviewService.updateReview(accountId, id, dto);
         return ResponseEntity.ok(new ApiResponse("Review updated successfully", review));
     }
 
-    @Operation(summary = "Delete a review", description = "User can delete their own review.")
+    @Operation(summary = "Delete a review", description = "Account can delete their own review.")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteReview(
-            @RequestParam UUID userId,
+            @RequestParam UUID accountId,
             @PathVariable UUID id) {
-        reviewService.deleteReview(userId, id);
+        reviewService.deleteReview(accountId, id);
         return ResponseEntity.ok(new ApiResponse("Review deleted successfully", null));
     }
 
@@ -55,10 +55,10 @@ public class ReviewController {
         return ResponseEntity.ok(new ApiResponse("Product reviews fetched", reviews));
     }
 
-    @Operation(summary = "Get all reviews by a user", description = "Fetch all reviews submitted by a given user.")
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse> getUserReviews(@PathVariable UUID userId) {
-        List<ReviewResponseDto> reviews = reviewService.getUserReviews(userId);
-        return ResponseEntity.ok(new ApiResponse("User reviews fetched", reviews));
+    @Operation(summary = "Get all reviews by a account", description = "Fetch all reviews submitted by a given account.")
+    @GetMapping("/account/{accountId}")
+    public ResponseEntity<ApiResponse> getAccountReviews(@PathVariable UUID accountId) {
+        List<ReviewResponseDto> reviews = reviewService.getAccountReviews(accountId);
+        return ResponseEntity.ok(new ApiResponse("Account reviews fetched", reviews));
     }
 }

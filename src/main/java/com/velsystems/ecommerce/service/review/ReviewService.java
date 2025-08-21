@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ReviewService {
-    ReviewResponseDto addReview(UUID userId, ReviewRequestDto dto);
-    ReviewResponseDto updateReview(UUID userId, UUID reviewId, ReviewRequestDto dto);
-    void deleteReview(UUID userId, UUID reviewId);
+    ReviewResponseDto addReview(UUID accountId, ReviewRequestDto dto);
+    ReviewResponseDto updateReview(UUID accountId, UUID reviewId, ReviewRequestDto dto);
+    void deleteReview(UUID accountId, UUID reviewId);
     List<ReviewResponseDto> getProductReviews(UUID productId);
-    List<ReviewResponseDto> getUserReviews(UUID userId);
+    List<ReviewResponseDto> getAccountReviews(UUID accountId);
 }

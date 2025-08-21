@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.security;
 
-import com.velsystems.ecommerce.dto.response.UserResponse;
+import com.velsystems.ecommerce.dto.response.AccountResponse;
 import com.velsystems.ecommerce.enums.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -22,7 +22,7 @@ public class JwtUtil {
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     // Generate token safely
-    public String generateToken(Role primaryRole, UserResponse user) {
+    public String generateToken(Role primaryRole, AccountResponse account) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", primaryRole);
 
@@ -30,7 +30,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(user.getEmail())
+                .setSubject(account.getEmail())
                 .setIssuedAt(new Date(nowMillis))
                 .setExpiration(new Date(nowMillis + JWT_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -48,12 +48,12 @@ public class JwtUtil {
     }
 
     // Extract email (subject)
-    public String extractUsername(String token) {
+    public String extractAccountname(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
     // Extract role
-    public String extractUserRole(String token) {
+    public String extractAccountRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 

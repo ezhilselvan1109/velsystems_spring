@@ -3,7 +3,7 @@ package com.velsystems.ecommerce.service.cart;
 import com.velsystems.ecommerce.dto.request.cart.CartItemRequest;
 import com.velsystems.ecommerce.dto.response.cart.CartItemResponse;
 import com.velsystems.ecommerce.dto.response.cart.CartResponse;
-import com.velsystems.ecommerce.model.User;
+import com.velsystems.ecommerce.model.Account;
 import com.velsystems.ecommerce.model.cart.Cart;
 import com.velsystems.ecommerce.model.cart.CartItem;
 import com.velsystems.ecommerce.model.product.ProductVariant;
@@ -35,14 +35,14 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse getCart() {
-        Cart cart = getOrCreateCart(util.getAuthenticatedUserId());
+        Cart cart = getOrCreateCart(util.getAuthenticatedAccountId());
         return convertToResponse(cart);
     }
 
     @Override
     public CartResponse addItem(CartItemRequest request) {
-        UUID userId = util.getAuthenticatedUserId();
-        Cart cart = getOrCreateCart(userId);
+        UUID accountId = util.getAuthenticatedAccountId();
+        Cart cart = getOrCreateCart(accountId);
 
         ProductVariant variant = variantRepository.findById(request.getVariantId())
                 .orElseThrow(() -> new EntityNotFoundException("Variant not found"));
@@ -67,13 +67,13 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse updateItem(UUID itemId, Integer quantity) {
-        Cart cart = getOrCreateCart(util.getAuthenticatedUserId());
+        Cart cart = getOrCreateCart(util.getAuthenticatedAccountId());
 
         CartItem item = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found"));
 
         if (!item.getCart().getId().equals(cart.getId())) {
-            throw new IllegalArgumentException("Item does not belong to user cart");
+            throw new IllegalArgumentException("Item does not belong to account cart");
         }
 
         item.setQuantity(quantity);
@@ -85,13 +85,13 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartResponse removeItem(UUID itemId) {
-        Cart cart = getOrCreateCart(util.getAuthenticatedUserId());
+        Cart cart = getOrCreateCart(util.getAuthenticatedAccountId());
 
         CartItem item = cartItemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found"));
 
         if (!item.getCart().getId().equals(cart.getId())) {
-            throw new IllegalArgumentException("Item does not belong to user cart");
+            throw new IllegalArgumentException("Item does not belong to account cart");
         }
 
         cart.getItems().remove(item);
@@ -102,15 +102,15 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void clearCart() {
-        Cart cart = getOrCreateCart(util.getAuthenticatedUserId());
+        Cart cart = getOrCreateCart(util.getAuthenticatedAccountId());
         cart.getItems().clear();
         cartRepository.save(cart);
     }
 
-    private Cart getOrCreateCart(UUID userId) {
-        return cartRepository.findByUserId(userId)
+    private Cart getOrCreateCart(UUID accountId) {
+        return cartRepository.findByAccountId(accountId)
                 .orElseGet(() -> cartRepository.save(Cart.builder()
-                        .user(User.builder().id(userId).build())
+                        .account(Account.builder().id(accountId).build())
                         .build()));
     }
 
@@ -127,7 +127,7 @@ public class CartServiceImpl implements CartService {
                         .build())
                 .collect(Collectors.toList());
 
-        response.setUserId(cart.getUser() != null ? cart.getUser().getId() : null);
+        response.setAccountId(cart.getAccount() != null ? cart.getAccount().getId() : null);
         response.setItems(items);
 
         return response;

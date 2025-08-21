@@ -9,7 +9,7 @@ import java.util.UUID;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class CartResponse {
     private UUID id;
-    private UUID userId;
+    private UUID accountId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<CartItemResponse> items;

@@ -1,6 +1,6 @@
 package com.velsystems.ecommerce.model.cart;
 
-import com.velsystems.ecommerce.model.User;
+import com.velsystems.ecommerce.model.Account;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "carts", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_cart_user", columnNames = "user_id")
+        @UniqueConstraint(name = "uk_cart_account", columnNames = "account_id")
 })
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Cart {
@@ -20,8 +20,8 @@ public class Cart {
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "account_id")
+    private Account account;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

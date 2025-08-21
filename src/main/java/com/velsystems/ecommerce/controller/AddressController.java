@@ -16,13 +16,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/addresses")
 @RequiredArgsConstructor
-@Tag(name = "Address", description = "User Addresses management APIs")
+@Tag(name = "Address", description = "Account Addresses management APIs")
 public class AddressController {
 
     private final AddressService addressService;
 
-    @Operation(summary = "Get all addresses of the current user",
-            description = "Fetches all saved addresses of the logged-in user")
+    @Operation(summary = "Get all addresses of the current account",
+            description = "Fetches all saved addresses of the logged-in account")
     @GetMapping
     public ResponseEntity<ApiResponse<List<AddressResponse>>> getAll() {
         return ResponseEntity.ok(ApiResponse.success("Addresses fetched successfully", addressService.getAll()));
@@ -34,7 +34,7 @@ public class AddressController {
         return ResponseEntity.ok(ApiResponse.success("Address fetched successfully", addressService.getById(id)));
     }
 
-    @Operation(summary = "Add a new address", description = "Creates a new address for the current user")
+    @Operation(summary = "Add a new address", description = "Creates a new address for the current account")
     @PostMapping
     public ResponseEntity<ApiResponse<AddressResponse>> add(@RequestBody AddressRequest request) {
         return ResponseEntity.ok(ApiResponse.success("Address added successfully", addressService.add(request)));

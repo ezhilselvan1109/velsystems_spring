@@ -9,7 +9,7 @@ import java.util.UUID;
 public class ReviewResponseDto {
     private UUID id;
     private UUID productId;
-    private UUID userId;
+    private UUID accountId;
     private Integer rating;
     private String comment;
     private LocalDateTime createdAt;

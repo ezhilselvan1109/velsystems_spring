@@ -33,8 +33,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 if (jwtUtil.validate(token)) {
-                    String email = jwtUtil.extractUsername(token);
-                    String role = jwtUtil.extractUserRole(token);
+                    String email = jwtUtil.extractAccountname(token);
+                    String role = jwtUtil.extractAccountRole(token);
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(

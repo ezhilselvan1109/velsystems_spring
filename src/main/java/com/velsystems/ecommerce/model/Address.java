@@ -20,8 +20,8 @@ public class Address {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "account_id")
+    private Account account;
     private String name;
     private String phone;
     private String address;

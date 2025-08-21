@@ -28,7 +28,7 @@ import java.util.*;
 @Transactional
 public class OrderServiceImpl implements OrderService {
 
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
     private final ProductVariantRepository variantRepository;
@@ -39,8 +39,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderResponse placeOrder(OrderRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Account account = accountRepository.findById(request.getAccountId())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
 
         Address billing = addressRepository.findById(request.getBillingAddressId())
                 .orElseThrow(() -> new RuntimeException("Billing address not found"));
@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Build order
         Order order = new Order();
-        order.setUser(user);
+        order.setAccount(account);
         order.setBillingAddress(billing);
         order.setShippingAddress(shipping);
         order.setStatus(OrderStatus.PENDING);

@@ -1,4 +1,4 @@
-package com.velsystems.ecommerce.dto.request.user;
+package com.velsystems.ecommerce.dto.request.account;
 
 import lombok.Getter;
 import lombok.Setter;

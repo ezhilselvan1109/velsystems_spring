@@ -1,6 +1,5 @@
 package com.velsystems.ecommerce.model;
 
-import com.velsystems.ecommerce.model.User;
 import com.velsystems.ecommerce.model.product.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +11,7 @@ import java.util.UUID;
 @Table(
         name = "reviews",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_review_user_product", columnNames = {"product_id", "user_id"})
+                @UniqueConstraint(name = "uk_review_account_product", columnNames = {"product_id", "account_id"})
         }
 )
 @Getter
@@ -31,8 +30,8 @@ public class Review {
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
 
     @Column(nullable = false)
     private Integer rating; // 1–5
