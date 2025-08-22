@@ -2,6 +2,7 @@ package com.velsystems.ecommerce.service.account;
 
 import com.velsystems.ecommerce.dto.request.account.*;
 import com.velsystems.ecommerce.dto.response.AccountResponse;
+import com.velsystems.ecommerce.dto.response.account.AccountInfoResponse;
 import com.velsystems.ecommerce.dto.response.otp.OtpResponse;
 import com.velsystems.ecommerce.dto.response.otp.OtpSendResponse;
 import com.velsystems.ecommerce.model.Account;
@@ -9,6 +10,7 @@ import com.velsystems.ecommerce.repository.AccountRepository;
 import com.velsystems.ecommerce.security.Util;
 import com.velsystems.ecommerce.service.OtpService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +23,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final OtpService otpService;
     private final Util util;
+    private final ModelMapper modelMapper;
 
     @Override
     public Account getAccount(){
@@ -28,6 +31,13 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found"));
     }
+
+    @Override
+    public AccountInfoResponse getAccountInfo() {
+        Account account = getAccount();
+        return modelMapper.map(account, AccountInfoResponse.class);
+    }
+
     @Override
     public AccountResponse updatePersonalInfo(UpdatePersonalInfoRequest request) {
         Account account = getAccount();
