@@ -28,23 +28,45 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("OTP sent successfully", authService.sendOtp(request)));
     }
 
-    @PostMapping("/user/verify-otp")
+    @PostMapping("/user/sign-in/verify-otp")
     @Operation(
             summary = "Verify OTP for User",
             description = "Verifies OTP for a USER role and authenticates the user."
     )
-    public ResponseEntity<ApiResponse<?>> userVerifyOtp(@RequestBody VerifyOtpRequest request,
+    public ResponseEntity<ApiResponse<?>> userSignInVerifyOtp(@RequestBody VerifyOtpRequest request,
                                                         HttpServletResponse response) {
         return ResponseEntity.ok(ApiResponse.success("OTP verified, user authenticated",
                 authService.verifyOtp(request, response, false)));
     }
 
-    @PostMapping("/admin/verify-otp")
+    @PostMapping("/user/sign-up/verify-otp")
+    @Operation(
+            summary = "Verify OTP for User",
+            description = "Verifies OTP for a USER role and authenticates the user."
+    )
+    public ResponseEntity<ApiResponse<?>> userSignUpVerifyOtp(@RequestBody VerifyOtpRequest request,
+                                                        HttpServletResponse response) {
+        return ResponseEntity.ok(ApiResponse.success("OTP verified, user authenticated",
+                authService.verifyOtp(request, response, false)));
+    }
+
+    @PostMapping("/admin/sign-in/verify-otp")
     @Operation(
             summary = "Verify OTP for Admin",
             description = "Verifies OTP for an ADMIN role and authenticates the user."
     )
-    public ResponseEntity<ApiResponse<?>> adminVerifyOtp(@RequestBody VerifyOtpRequest request,
+    public ResponseEntity<ApiResponse<?>> adminSignInVerifyOtp(@RequestBody VerifyOtpRequest request,
+                                                         HttpServletResponse response) {
+        return ResponseEntity.ok(ApiResponse.success("OTP verified, admin authenticated",
+                authService.verifyOtp(request, response, true)));
+    }
+
+    @PostMapping("/admin/sign-up/verify-otp")
+    @Operation(
+            summary = "Verify OTP for Admin",
+            description = "Verifies OTP for an ADMIN role and authenticates the user."
+    )
+    public ResponseEntity<ApiResponse<?>> adminSignUpVerifyOtp(@RequestBody VerifyOtpRequest request,
                                                          HttpServletResponse response) {
         return ResponseEntity.ok(ApiResponse.success("OTP verified, admin authenticated",
                 authService.verifyOtp(request, response, true)));
