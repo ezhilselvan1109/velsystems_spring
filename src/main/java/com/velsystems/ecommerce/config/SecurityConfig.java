@@ -31,14 +31,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/api/client/contact").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/hierarchy").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/brands").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                         .requestMatchers(
                                 "/api/auth/**",
-                                "/api/**",
-                                "/api/coupons/**",
-                                "/api/categories/**",
-                                "/api/brands/**",
-                                "/api/product-types/**",
-                                "/api/products/**",
                                 "/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",

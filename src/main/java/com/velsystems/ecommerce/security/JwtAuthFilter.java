@@ -83,6 +83,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private boolean requiresAuthentication(HttpServletRequest request) {
         String path = request.getRequestURI();
+        String method = request.getMethod();
+        // Public endpoints
+        if (path.equals("/api/client/contact") && "POST".equalsIgnoreCase(method)) return false;
+        if (path.equals("/api/categories/hierarchy") && "GET".equalsIgnoreCase(method)) return false;
+        if (path.equals("/api/brands") && "GET".equalsIgnoreCase(method)) return false;
+        if (path.startsWith("/api/products/") && "GET".equalsIgnoreCase(method)) return false;
         return !(path.startsWith("/api/auth")
                 || path.startsWith("/swagger")
                 || path.startsWith("/api-docs")

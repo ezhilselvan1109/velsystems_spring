@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class ClientController {
         return ApiResponse.success("Message sent successfully", service.saveMessage(requestDto));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all messages",
             description = "Fetches a paginated list of all contact messages")
     @GetMapping("/contact")
@@ -44,6 +46,8 @@ public class ClientController {
         return ApiResponse.success("Messages retrieved successfully", service.getAllMessages(page, size));
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update message status",
             description = "Updates the status of a specific contact message. " +
                     "Valid codes: 0=NEW, 1=IN_PROGRESS, 2=RESOLVED")
@@ -56,6 +60,7 @@ public class ClientController {
                 service.updateStatus(id, ContactMessageStatus.fromCode(status)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get status statistics",
             description = "Returns a count of messages by their status (NEW, IN_PROGRESS, RESOLVED)")
     @GetMapping("/stats")
